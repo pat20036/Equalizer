@@ -21,17 +21,27 @@ fun EqualizerSlider(
     modifier: Modifier = Modifier,
     valueRange: ClosedFloatingPointRange<Float> = -1500f..1500f,
     steps: Int = 0,
-    onValueChangeFinished: (() -> Unit)? = null,
+    onValueChange: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit,
 ) {
+    val state = rememberSliderState(
+        value = value,
+        steps = steps,
+        onValueChangeFinished = onValueChangeFinished,
+        valueRange = valueRange
+    )
+
+    // TODO temporary
+    state.onValueChange = {
+        state.value = it
+        onValueChange(it)
+    }
+
     Column {
         Text(topText)
         VerticalSlider(
-            state = rememberSliderState(
-                value = value,
-                steps = steps,
-                onValueChangeFinished = onValueChangeFinished,
-                valueRange = valueRange
-            ),
+            reverseDirection = true,
+            state = state,
             modifier = modifier
         )
     }
@@ -41,5 +51,5 @@ fun EqualizerSlider(
 @Preview(showBackground = true)
 @Composable
 private fun EqualizerSliderPreview() {
-    EqualizerSlider("100 Hz", 100f)
+    EqualizerSlider("100 Hz", 100f, onValueChange = {}, onValueChangeFinished = {})
 }

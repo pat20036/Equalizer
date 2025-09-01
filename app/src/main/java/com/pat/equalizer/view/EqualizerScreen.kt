@@ -66,9 +66,11 @@ private fun EqualizerScreen(
     onChangeBarValue: (band: Short, level: Short) -> Unit = { _, _ -> }
 ) {
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         EqualizerBars(state.levels) { band, level ->
             onChangeBarValue(band, level)
         }
@@ -143,7 +145,7 @@ fun EqualizerBars(levels: List<BandLevel>, onBandLevelChanged: (band: Short, lev
             .height(248.dp)
     ) {
         for (i in levels.indices) {
-            EqualizerSlider(levels[i].hzCenterFrequency, value = bandBarValues[i], onValueChangeFinished = {
+            EqualizerSlider(levels[i].hzCenterFrequency, value = bandBarValues[i], onValueChange = { bandBarValues[i] = it }, onValueChangeFinished = {
                 onBandLevelChanged(i.toShort(), bandBarValues[i].toInt().toShort())
             })
         }
