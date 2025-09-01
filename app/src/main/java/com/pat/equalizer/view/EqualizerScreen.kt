@@ -1,6 +1,7 @@
 package com.pat.equalizer.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -65,21 +67,23 @@ private fun EqualizerScreen(
     onCustomPresetClick: () -> Unit = {},
     onChangeBarValue: (band: Short, level: Short) -> Unit = { _, _ -> }
 ) {
+    Scaffold { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            EqualizerBars(state.levels) { band, level ->
+                onChangeBarValue(band, level)
+            }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        EqualizerBars(state.levels) { band, level ->
-            onChangeBarValue(band, level)
+            PresetsDropdown(presets = state.presets, onPresetClick = { id ->
+                onPresetClick(id)
+            }, customPreset = state.customPreset, onCustomPresetClick = {
+                onCustomPresetClick()
+            })
         }
-
-        PresetsDropdown(presets = state.presets, onPresetClick = { id ->
-            onPresetClick(id)
-        }, customPreset = state.customPreset, onCustomPresetClick = {
-            onCustomPresetClick()
-        })
     }
 }
 
@@ -140,9 +144,10 @@ fun EqualizerBars(levels: List<BandLevel>, onBandLevelChanged: (band: Short, lev
     }
 
     Row(
-        Modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .height(248.dp)
+            .height(248.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         for (i in levels.indices) {
             EqualizerSlider(levels[i].hzCenterFrequency, value = bandBarValues[i], onValueChange = { bandBarValues[i] = it }, onValueChangeFinished = {
