@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "Equalizer"
 include(":app")
 include(":ui-components")
+include(":viewmodel-extensions")
