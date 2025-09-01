@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -40,6 +41,8 @@ android {
 
 dependencies {
     implementation(project(":ui-components"))
+    implementation(project(":viewmodel-extensions"))
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.core.ktx)
