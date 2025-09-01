@@ -1,38 +1,41 @@
 package com.pat.equalizer.repository
 
 import android.content.Context
-import android.media.AudioManager
 import android.media.audiofx.Equalizer
-import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import com.pat.equalizer.model.BandLevel
 import com.pat.equalizer.model.CustomPreset
 import com.pat.equalizer.model.Preset
-import java.util.prefs.Preferences
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
-import androidx.core.content.edit
+import javax.inject.Singleton
+
+private val Context.dataStore by preferencesDataStore(name = EqualizerControllerImpl.EQUALIZER_DATA_STORE)
 
 interface EqualizerController {
-
     fun getPresets(): List<Preset>
-
     fun usePreset(preset: Short)
-
     fun setBandLevel(band: Short, level: Short)
-
     fun getBandsLevel(): List<BandLevel>
-
-    fun useCustomPreset()
-
-    fun saveCustomPreset()
-
-    fun getCustomPreset(): CustomPreset
+    suspend fun useCustomPreset()
+    suspend fun saveCustomPreset()
+    suspend fun getCustomPreset(): CustomPreset
 }
 
-class EqualizerControllerImpl @Inject constructor(private val context: Context) : EqualizerController {
+class EqualizerControllerImpl @Inject constructor(private val context: Context, private val equalizer: Equalizer) : EqualizerController {
+    private val customPresetKey = stringPreferencesKey(EQUALIZER_CUSTOM_PRESET_PREFERENCE)
 
-    private var equalizer: Equalizer = Equalizer(AudioManager.STREAM_MUSIC, 0).apply {
-        if (!enabled) enabled = true
+    init {
+        equalizer.apply {
+            if (!enabled) enabled = true
+        }
     }
 
     override fun setBandLevel(band: Short, level: Short) {
@@ -53,16 +56,20 @@ class EqualizerControllerImpl @Inject constructor(private val context: Context) 
         return levels
     }
 
-    override fun useCustomPreset() {
-        useCustomPreset(getCustomPreset(context))
+    override suspend fun useCustomPreset() {
+        useCustomPreset(getCustomPreset())
     }
 
-    override fun saveCustomPreset() {
-        setCustomPreset(context)
+    override suspend fun saveCustomPreset() {
+        setCustomPreset()
     }
 
-    override fun getCustomPreset(): CustomPreset {
-        return getCustomPreset(context)
+    override suspend fun getCustomPreset(): CustomPreset {
+        val preferences = context.dataStore.data.first()
+        val customPresetPreferences = preferences[customPresetKey]
+        return customPresetPreferences?.let {
+            Gson().fromJson(it, CustomPreset::class.java)
+        } ?: CustomPreset()
     }
 
     override fun getPresets(): List<Preset> {
@@ -79,31 +86,17 @@ class EqualizerControllerImpl @Inject constructor(private val context: Context) 
         equalizer.usePreset(preset)
     }
 
-
-    private fun setCustomPreset(context: Context) {
-        val equalizerPreferences = context.getSharedPreferences(EQUALIZER_SHARED_PREFERENCES, Context.MODE_PRIVATE)
-
-        equalizerPreferences.edit {
-            putString(
-                EQUALIZER_CUSTOM_PRESET_PREFERENCE, Gson().toJson(
-                    CustomPreset(
-                        bandLevel0 = equalizer.getBandLevel(0),
-                        bandLevel1 = equalizer.getBandLevel(1),
-                        bandLevel2 = equalizer.getBandLevel(2),
-                        bandLevel3 = equalizer.getBandLevel(3),
-                        bandLevel4 = equalizer.getBandLevel(4)
-                    )
-                )
-            )
+    private suspend fun setCustomPreset() {
+        val customPreset = CustomPreset(
+            bandLevel0 = equalizer.getBandLevel(0),
+            bandLevel1 = equalizer.getBandLevel(1),
+            bandLevel2 = equalizer.getBandLevel(2),
+            bandLevel3 = equalizer.getBandLevel(3),
+            bandLevel4 = equalizer.getBandLevel(4)
+        )
+        context.dataStore.edit { preferences ->
+            preferences[customPresetKey] = Gson().toJson(customPreset)
         }
-    }
-
-    private fun getCustomPreset(context: Context): CustomPreset {
-        val equalizerPreferences = context.getSharedPreferences(EQUALIZER_SHARED_PREFERENCES, Context.MODE_PRIVATE)
-        val customPresetPreferences = equalizerPreferences.getString(EQUALIZER_CUSTOM_PRESET_PREFERENCE, null)
-
-        return customPresetPreferences?.let {
-            Gson().fromJson(it, CustomPreset::class.java) } ?: CustomPreset()
     }
 
     private fun useCustomPreset(customPreset: CustomPreset) {
@@ -119,7 +112,17 @@ class EqualizerControllerImpl @Inject constructor(private val context: Context) 
     private fun Int.convertMiliherzToHerzFormatted() = (this / 1000).toString() + " Hz"
 
     companion object {
-        private const val EQUALIZER_SHARED_PREFERENCES = "EQUALIZER"
+        const val EQUALIZER_DATA_STORE = "EQUALIZER"
         private const val EQUALIZER_CUSTOM_PRESET_PREFERENCE = "CUSTOM_PRESET"
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class EqualizerControllerModule {
+    @Binds
+    @Singleton
+    abstract fun bindEqualizerController(
+        impl: EqualizerControllerImpl
+    ): EqualizerController
 }

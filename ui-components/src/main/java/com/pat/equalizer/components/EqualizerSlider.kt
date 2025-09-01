@@ -1,24 +1,20 @@
 package com.pat.equalizer.components
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderColors
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
-import kotlin.ranges.rangeTo
 
 @Composable
 fun EqualizerSlider(
@@ -26,25 +22,18 @@ fun EqualizerSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = -1500f..1500f,
-    /*@IntRange(from = 0)*/
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    colors: SliderColors = SliderDefaults.colors()
-){
+) {
     Row {
         Spacer(modifier = Modifier.size(6.dp))
         Column {
             Text(topText)
             Slider(
-                colors = colors,
-                interactionSource = interactionSource,
                 onValueChangeFinished = onValueChangeFinished,
                 steps = steps,
                 valueRange = valueRange,
-                enabled = enabled,
                 value = value,
                 onValueChange = onValueChange,
                 modifier = Modifier
@@ -71,4 +60,10 @@ fun EqualizerSlider(
         }
         Spacer(modifier = Modifier.size(6.dp))
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EqualizerSliderPreview() {
+    EqualizerSlider("100 Hz", 100f, onValueChange = {})
 }

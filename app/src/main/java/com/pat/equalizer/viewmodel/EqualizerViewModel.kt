@@ -1,17 +1,19 @@
 package com.pat.equalizer.viewmodel
 
+import androidx.lifecycle.viewModelScope
 import com.pat.equalizer.model.BandLevel
 import com.pat.equalizer.model.CustomPreset
 import com.pat.equalizer.model.Preset
-import com.pat.equalizer.repository.EqualizerControllerImpl
+import com.pat.equalizer.repository.EqualizerController
 import com.pat.equalizer.viewmodel.extensions.BaseUiState
 import com.pat.equalizer.viewmodel.extensions.StateViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class EqualizerViewModel @Inject constructor(private val equalizerController: EqualizerControllerImpl) : StateViewModel<EqualizerUiState, EqualizerAction>() {
+class EqualizerViewModel @Inject constructor(private val equalizerController: EqualizerController) : StateViewModel<EqualizerUiState, EqualizerAction>() {
 
     override val state: MutableStateFlow<EqualizerUiState> = MutableStateFlow(EqualizerUiState())
 
@@ -29,11 +31,15 @@ class EqualizerViewModel @Inject constructor(private val equalizerController: Eq
                 }
 
                 EqualizerAction.UseCustomPreset -> {
-                    equalizerController.useCustomPreset()
-                    updateState(state.value.copy(levels = equalizerController.getBandsLevel(), customPreset = equalizerController.getCustomPreset()))
+                    viewModelScope.launch {
+                        equalizerController.useCustomPreset()
+                        updateState(state.value.copy(levels = equalizerController.getBandsLevel(), customPreset = equalizerController.getCustomPreset()))
+                    }
                 }
 
-                EqualizerAction.SetCustomPreset -> equalizerController.saveCustomPreset()
+                EqualizerAction.SetCustomPreset -> viewModelScope.launch {
+                    equalizerController.saveCustomPreset()
+                }
             }
         }
     }

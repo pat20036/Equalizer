@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pat.equalizer.components.EqualizerSlider
@@ -29,6 +30,7 @@ import com.pat.equalizer.model.BandLevel
 import com.pat.equalizer.model.CustomPreset
 import com.pat.equalizer.model.Preset
 import com.pat.equalizer.viewmodel.EqualizerAction
+import com.pat.equalizer.viewmodel.EqualizerUiState
 import com.pat.equalizer.viewmodel.EqualizerViewModel
 import kotlinx.coroutines.launch
 
@@ -36,34 +38,50 @@ import kotlinx.coroutines.launch
 fun EqualizerScreen() {
     val equalizerViewModel: EqualizerViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
-
-    val currentState = equalizerViewModel.getCurrentState()
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        EqualizerBars(currentState.levels) { band, level ->
+    EqualizerScreen(
+        state = equalizerViewModel.getCurrentState(), onPresetClick = { id ->
+            coroutineScope.launch {
+                equalizerViewModel.emitAction(EqualizerAction.UsePreset(id))
+            }
+        }, onCustomPresetClick = {
+            coroutineScope.launch {
+                equalizerViewModel.emitAction(value = EqualizerAction.UseCustomPreset)
+            }
+        },
+        onChangeBarValue = { band, level ->
             coroutineScope.launch {
                 equalizerViewModel.emitAction(EqualizerAction.ChangeBandLevel(band, level))
                 equalizerViewModel.emitAction(EqualizerAction.SetCustomPreset)
             }
+        })
+}
+
+@Composable
+private fun EqualizerScreen(
+    state: EqualizerUiState,
+    onPresetClick: (Short) -> Unit = {},
+    onCustomPresetClick: () -> Unit = {},
+    onChangeBarValue: (band: Short, level: Short) -> Unit = { _, _ -> }
+) {
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        EqualizerBars(state.levels) { band, level ->
+            onChangeBarValue(band, level)
         }
 
-        PresetsDropdown(presets = currentState.presets, onPresetClick = { id ->
-            coroutineScope.launch {
-                equalizerViewModel.emitAction(EqualizerAction.UsePreset(id))
-            }
-        }, customPreset = currentState.customPreset, onCustomPresetClick = {
-            coroutineScope.launch {
-                equalizerViewModel.emitAction(value = EqualizerAction.UseCustomPreset)
-            }
+        PresetsDropdown(presets = state.presets, onPresetClick = { id ->
+            onPresetClick(id)
+        }, customPreset = state.customPreset, onCustomPresetClick = {
+            onCustomPresetClick()
         })
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PresetsDropdown(presets: List<Preset>, customPreset: CustomPreset, onPresetClick: (id: Short) -> Unit, onCustomPresetClick: () -> Unit) {
+private fun PresetsDropdown(presets: List<Preset>, customPreset: CustomPreset, onPresetClick: (id: Short) -> Unit, onCustomPresetClick: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(presets[0].name) }
+    var selectedText by remember { mutableStateOf(presets.firstOrNull()?.name) }
 
     Box(
         modifier = Modifier
@@ -77,7 +95,7 @@ fun PresetsDropdown(presets: List<Preset>, customPreset: CustomPreset, onPresetC
             }
         ) {
             TextField(
-                value = selectedText,
+                value = selectedText ?: "",
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -128,4 +146,20 @@ fun EqualizerBars(levels: List<BandLevel>, onBandLevelChanged: (band: Short, lev
             })
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EqualizerScreenPreview() {
+    EqualizerScreen(
+        state = EqualizerUiState(
+            levels = listOf(
+                BandLevel(0f, "60"),
+                BandLevel(500f, "230"),
+                BandLevel(-300f, "910"),
+                BandLevel(0f, "3600"),
+                BandLevel(1500f, "14000")
+            ), presets = listOf(Preset("Normal", 0), Preset("Pop", 1), Preset("Rock", 2)), customPreset = CustomPreset(name = "Custom")
+        )
+    )
 }
