@@ -27,6 +27,13 @@ class EqualizerViewModel @Inject constructor(private val equalizerController: Eq
                 is EqualizerAction.ChangeBandLevel -> {
                     equalizerController.setBandLevel(it.band, it.level)
                 }
+
+                EqualizerAction.UseCustomPreset -> {
+                    equalizerController.useCustomPreset()
+                    updateState(state.value.copy(levels = equalizerController.getBandsLevel(), customPreset = equalizerController.getCustomPreset()))
+                }
+
+                EqualizerAction.SetCustomPreset -> equalizerController.saveCustomPreset()
             }
         }
     }
@@ -41,4 +48,6 @@ data class EqualizerUiState(
 sealed interface EqualizerAction {
     data class UsePreset(val id: Short) : EqualizerAction
     data class ChangeBandLevel(val band: Short, val level: Short) : EqualizerAction
+    data object UseCustomPreset : EqualizerAction
+    data object SetCustomPreset : EqualizerAction
 }

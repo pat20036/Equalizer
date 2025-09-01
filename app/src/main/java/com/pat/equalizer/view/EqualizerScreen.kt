@@ -43,6 +43,7 @@ fun EqualizerScreen() {
         EqualizerBars(currentState.levels) { band, level ->
             coroutineScope.launch {
                 equalizerViewModel.emitAction(EqualizerAction.ChangeBandLevel(band, level))
+                equalizerViewModel.emitAction(EqualizerAction.SetCustomPreset)
             }
         }
 
@@ -50,13 +51,17 @@ fun EqualizerScreen() {
             coroutineScope.launch {
                 equalizerViewModel.emitAction(EqualizerAction.UsePreset(id))
             }
-        }, customPreset = currentState.customPreset)
+        }, customPreset = currentState.customPreset, onCustomPresetClick = {
+            coroutineScope.launch {
+                equalizerViewModel.emitAction(value = EqualizerAction.UseCustomPreset)
+            }
+        })
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PresetsDropdown(presets: List<Preset>, customPreset: CustomPreset, onPresetClick: (id: Short) -> Unit) {
+fun PresetsDropdown(presets: List<Preset>, customPreset: CustomPreset, onPresetClick: (id: Short) -> Unit, onCustomPresetClick: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(presets[0].name) }
 
@@ -94,6 +99,7 @@ fun PresetsDropdown(presets: List<Preset>, customPreset: CustomPreset, onPresetC
                 DropdownMenuItem(text = { Text(customPreset.name) }, onClick = {
                     selectedText = customPreset.name
                     expanded = false
+                    onCustomPresetClick()
                 })
             }
         }
