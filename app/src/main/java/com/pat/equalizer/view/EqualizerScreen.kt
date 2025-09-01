@@ -1,5 +1,6 @@
 package com.pat.equalizer.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -64,7 +66,9 @@ private fun EqualizerScreen(
     onChangeBarValue: (band: Short, level: Short) -> Unit = { _, _ -> }
 ) {
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)) {
         EqualizerBars(state.levels) { band, level ->
             onChangeBarValue(band, level)
         }
@@ -139,9 +143,7 @@ fun EqualizerBars(levels: List<BandLevel>, onBandLevelChanged: (band: Short, lev
             .height(248.dp)
     ) {
         for (i in levels.indices) {
-            EqualizerSlider(levels[i].hzCenterFrequency, value = bandBarValues[i], onValueChange = {
-                bandBarValues[i] = it
-            }, onValueChangeFinished = {
+            EqualizerSlider(levels[i].hzCenterFrequency, value = bandBarValues[i], onValueChangeFinished = {
                 onBandLevelChanged(i.toShort(), bandBarValues[i].toInt().toShort())
             })
         }
