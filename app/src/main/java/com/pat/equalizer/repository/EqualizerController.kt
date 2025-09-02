@@ -1,6 +1,5 @@
 package com.pat.equalizer.repository
 
-import android.content.Context
 import android.media.audiofx.Equalizer
 import com.pat.equalizer.model.BandLevel
 import com.pat.equalizer.model.Preset
@@ -8,29 +7,63 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 interface EqualizerController {
     fun getPresets(): List<Preset>
     fun usePreset(preset: Preset, bandLevels: (List<BandLevel>) -> Unit)
+    suspend fun addCustomPreset(name: String)
 }
 
-class EqualizerControllerImpl @Inject constructor(private val context: Context, private val equalizer: Equalizer) : EqualizerController {
+class EqualizerControllerImpl @Inject constructor(
+    private val equalizer: Equalizer,
+    private val dataStore: EqualizerDataStore
+) : EqualizerController {
+
+    private var allPresets = mutableListOf<Preset>()
 
     init {
         equalizer.apply {
             if (!enabled) enabled = true
         }
+
+        allPresets.addAll(getSystemPresets())
+
+        CoroutineScope(Dispatchers.IO).launch {
+            dataStore.getPresets().collectLatest { customPresets ->
+                allPresets.removeAll { it.isCustom }
+                allPresets.addAll(customPresets)
+            }
+        }
     }
 
-    override fun getPresets(): List<Preset> {
-        return getSystemPresets()
-    }
+    override fun getPresets(): List<Preset> = allPresets
 
     override fun usePreset(preset: Preset, bandLevels: (List<BandLevel>) -> Unit) {
-        equalizer.usePreset(preset.id)
-        bandLevels(getSystemPresetsBandLevels())
+        if (preset.isCustom) {
+            preset.bandLevels.forEachIndexed { index, band ->
+                equalizer.setBandLevel(index.toShort(), band.level)
+            }
+        } else {
+            equalizer.usePreset(preset.id)
+        }
+        bandLevels(getBandLevels())
+    }
+
+    override suspend fun addCustomPreset(name: String) {
+        val preset = Preset(
+            name = name,
+            id = (allPresets.lastIndex + 1).toShort(),
+            bandLevels = getBandLevels(true),
+            isCustom = true
+        )
+
+        dataStore.addPreset(preset)
     }
 
     private fun getSystemPresets(): List<Preset> {
@@ -42,7 +75,7 @@ class EqualizerControllerImpl @Inject constructor(private val context: Context, 
                 Preset(
                     name = equalizer.getPresetName(presetIndex),
                     id = presetIndex,
-                    bandLevels = getSystemPresetsBandLevels(),
+                    bandLevels = getBandLevels(),
                     selected = presetIndex == 0.toShort()
                 )
             )
@@ -51,13 +84,13 @@ class EqualizerControllerImpl @Inject constructor(private val context: Context, 
         return presets
     }
 
-    private fun getSystemPresetsBandLevels(): List<BandLevel> {
+    private fun getBandLevels(default: Boolean = false): List<BandLevel> {
         val levels = mutableListOf<BandLevel>()
         for (level in 0 until equalizer.numberOfBands) {
             val levelIndex = level.toShort()
             levels.add(
                 BandLevel(
-                    level = equalizer.getBandLevel(levelIndex),
+                    level = if (default) 0 else equalizer.getBandLevel(levelIndex),
                     hzCenterFrequency = equalizer.getCenterFreq(levelIndex).convertMiliherzToHerzFormatted()
                 )
             )

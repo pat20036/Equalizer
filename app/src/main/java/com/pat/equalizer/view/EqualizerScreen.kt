@@ -6,10 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlaylistAddCircle
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -37,9 +41,15 @@ fun EqualizerScreen() {
     val equalizerViewModel: EqualizerViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
     EqualizerScreen(
-        state = equalizerViewModel.getCurrentState(), onPresetClick = { id ->
+        state = equalizerViewModel.getCurrentState(),
+        onPresetClick = { id ->
             coroutineScope.launch {
                 equalizerViewModel.emitAction(EqualizerAction.UsePreset(id))
+            }
+        },
+        addCustomPreset = {
+            coroutineScope.launch {
+                equalizerViewModel.emitAction(EqualizerAction.AddCustomPreset(it))
             }
         })
 }
@@ -48,10 +58,15 @@ fun EqualizerScreen() {
 private fun EqualizerScreen(
     state: EqualizerUiState,
     onPresetClick: (Preset) -> Unit = {},
+    addCustomPreset: (String) -> Unit = {}
 ) {
     val selectedPreset = state.presets.first { it.selected }
 
-    Scaffold { paddingValues ->
+    Scaffold(floatingActionButton = {
+        FloatingActionButton(onClick = { addCustomPreset("Custom") }) {
+            Icon(imageVector = Icons.Default.PlaylistAddCircle, contentDescription = null)
+        }
+    }) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
