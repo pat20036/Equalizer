@@ -6,14 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlaylistAddCircle
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pat.equalizer.components.EqualizerSlider
 import com.pat.equalizer.model.BandLevel
-import com.pat.equalizer.model.CustomPreset
 import com.pat.equalizer.model.Preset
 import com.pat.equalizer.viewmodel.EqualizerAction
 import com.pat.equalizer.viewmodel.EqualizerUiState
@@ -46,15 +41,6 @@ fun EqualizerScreen() {
             coroutineScope.launch {
                 equalizerViewModel.emitAction(EqualizerAction.UsePreset(id))
             }
-        }, addCustomPreset = {
-            coroutineScope.launch {
-            }
-        },
-        onChangeBarValue = { band, level ->
-            coroutineScope.launch {
-                equalizerViewModel.emitAction(EqualizerAction.ChangeBandLevel(band, level))
-                equalizerViewModel.emitAction(EqualizerAction.SetCustomPreset)
-            }
         })
 }
 
@@ -62,25 +48,17 @@ fun EqualizerScreen() {
 private fun EqualizerScreen(
     state: EqualizerUiState,
     onPresetClick: (Preset) -> Unit = {},
-    addCustomPreset: (String) -> Unit = {},
-    onChangeBarValue: (band: Short, level: Short) -> Unit = { _, _ -> }
 ) {
     val selectedPreset = state.presets.first { it.selected }
 
-    Scaffold(floatingActionButton = {
-         FloatingActionButton(onClick = { addCustomPreset("Custom") }) {
-             Icon(imageVector = Icons.Default.PlaylistAddCircle, contentDescription = null)
-         }
-    }) { paddingValues ->
+    Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            EqualizerBars(selectedPreset.isCustom, selectedPreset.bandLevels) { band, level ->
-                onChangeBarValue(band, level)
-            }
+            EqualizerBars(selectedPreset.isCustom, selectedPreset.bandLevels)
 
             PresetsDropdown(presets = state.presets, onPresetClick = { preset ->
                 onPresetClick(preset)
@@ -133,8 +111,7 @@ private fun PresetsDropdown(presets: List<Preset>, onPresetClick: (preset: Prese
 @Composable
 fun EqualizerBars(
     isCustom: Boolean,
-    levels: List<BandLevel>,
-    onBandLevelChanged: (band: Short, level: Short) -> Unit
+    levels: List<BandLevel>
 ) {
     Column(
         modifier = Modifier
@@ -144,9 +121,7 @@ fun EqualizerBars(
             EqualizerSlider(
                 topText = bandLevel.hzCenterFrequency,
                 value = bandLevel.level.toFloat(),
-                onValueChange = { newValue ->
-                    onBandLevelChanged(i.toShort(), newValue.toInt().toShort())
-                },
+                onValueChange = { newValue -> },
                 onValueChangeFinished = {},
                 enabled = isCustom
             )
@@ -185,8 +160,7 @@ private fun EqualizerScreenPreview() {
                     selected = false,
                     isCustom = true
                 )
-            ),
-            customPreset = CustomPreset()
+            )
         )
     )
 
