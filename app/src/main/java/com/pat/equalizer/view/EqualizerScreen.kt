@@ -1,26 +1,25 @@
 package com.pat.equalizer.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlaylistAddCircle
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,9 +46,8 @@ fun EqualizerScreen() {
             coroutineScope.launch {
                 equalizerViewModel.emitAction(EqualizerAction.UsePreset(id))
             }
-        }, onCustomPresetClick = {
+        }, addCustomPreset = {
             coroutineScope.launch {
-                equalizerViewModel.emitAction(value = EqualizerAction.UseCustomPreset)
             }
         },
         onChangeBarValue = { band, level ->
@@ -63,25 +61,29 @@ fun EqualizerScreen() {
 @Composable
 private fun EqualizerScreen(
     state: EqualizerUiState,
-    onPresetClick: (Short) -> Unit = {},
-    onCustomPresetClick: () -> Unit = {},
+    onPresetClick: (Preset) -> Unit = {},
+    addCustomPreset: (String) -> Unit = {},
     onChangeBarValue: (band: Short, level: Short) -> Unit = { _, _ -> }
 ) {
-    Scaffold { paddingValues ->
+    val selectedPreset = state.presets.first { it.selected }
+
+    Scaffold(floatingActionButton = {
+         FloatingActionButton(onClick = { addCustomPreset("Custom") }) {
+             Icon(imageVector = Icons.Default.PlaylistAddCircle, contentDescription = null)
+         }
+    }) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            EqualizerBars(state.levels) { band, level ->
+            EqualizerBars(selectedPreset.isCustom, selectedPreset.bandLevels) { band, level ->
                 onChangeBarValue(band, level)
             }
 
-            PresetsDropdown(presets = state.presets, onPresetClick = { id ->
-                onPresetClick(id)
-            }, customPreset = state.customPreset, onCustomPresetClick = {
-                onCustomPresetClick()
+            PresetsDropdown(presets = state.presets, onPresetClick = { preset ->
+                onPresetClick(preset)
             })
         }
     }
@@ -89,7 +91,7 @@ private fun EqualizerScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PresetsDropdown(presets: List<Preset>, customPreset: CustomPreset, onPresetClick: (id: Short) -> Unit, onCustomPresetClick: () -> Unit) {
+private fun PresetsDropdown(presets: List<Preset>, onPresetClick: (preset: Preset) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(presets.firstOrNull()?.name) }
 
@@ -120,39 +122,34 @@ private fun PresetsDropdown(presets: List<Preset>, customPreset: CustomPreset, o
                     DropdownMenuItem(text = { Text(it.name) }, onClick = {
                         selectedText = it.name
                         expanded = false
-                        onPresetClick(it.id)
+                        onPresetClick(it)
                     })
                 }
-
-                DropdownMenuItem(text = { Text(customPreset.name) }, onClick = {
-                    selectedText = customPreset.name
-                    expanded = false
-                    onCustomPresetClick()
-                })
             }
         }
     }
 }
 
 @Composable
-fun EqualizerBars(levels: List<BandLevel>, onBandLevelChanged: (band: Short, level: Short) -> Unit) {
-    val bandBarValues = remember { mutableStateListOf(0f, 0f, 0f, 0f, 0f) }
-
-    LaunchedEffect(levels) {
-        bandBarValues.clear()
-        bandBarValues.addAll(levels.map { it.level })
-    }
-
-    Row(
+fun EqualizerBars(
+    isCustom: Boolean,
+    levels: List<BandLevel>,
+    onBandLevelChanged: (band: Short, level: Short) -> Unit
+) {
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(248.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        for (i in levels.indices) {
-            EqualizerSlider(levels[i].hzCenterFrequency, value = bandBarValues[i], onValueChange = { bandBarValues[i] = it }, onValueChangeFinished = {
-                onBandLevelChanged(i.toShort(), bandBarValues[i].toInt().toShort())
-            })
+        levels.forEachIndexed { i, bandLevel ->
+            EqualizerSlider(
+                topText = bandLevel.hzCenterFrequency,
+                value = bandLevel.level.toFloat(),
+                onValueChange = { newValue ->
+                    onBandLevelChanged(i.toShort(), newValue.toInt().toShort())
+                },
+                onValueChangeFinished = {},
+                enabled = isCustom
+            )
         }
     }
 }
@@ -162,13 +159,35 @@ fun EqualizerBars(levels: List<BandLevel>, onBandLevelChanged: (band: Short, lev
 private fun EqualizerScreenPreview() {
     EqualizerScreen(
         state = EqualizerUiState(
-            levels = listOf(
-                BandLevel(0f, "60"),
-                BandLevel(500f, "230"),
-                BandLevel(-300f, "910"),
-                BandLevel(0f, "3600"),
-                BandLevel(1500f, "14000")
-            ), presets = listOf(Preset("Normal", 0), Preset("Pop", 1), Preset("Rock", 2)), customPreset = CustomPreset(name = "Custom")
+            presets = listOf(
+                Preset(
+                    name = "Normal",
+                    id = 0,
+                    bandLevels = listOf(
+                        BandLevel(level = 0, hzCenterFrequency = "60 Hz"),
+                        BandLevel(level = 0, hzCenterFrequency = "230 Hz"),
+                        BandLevel(level = 0, hzCenterFrequency = "910 Hz"),
+                        BandLevel(level = 0, hzCenterFrequency = "3600 Hz"),
+                        BandLevel(level = 0, hzCenterFrequency = "14000 Hz")
+                    ),
+                    selected = true
+                ),
+                Preset(
+                    name = "Custom",
+                    id = 1,
+                    bandLevels = listOf(
+                        BandLevel(level = 0, hzCenterFrequency = "60 Hz"),
+                        BandLevel(level = 0, hzCenterFrequency = "230 Hz"),
+                        BandLevel(level = 0, hzCenterFrequency = "910 Hz"),
+                        BandLevel(level = 0, hzCenterFrequency = "3600 Hz"),
+                        BandLevel(level = 0, hzCenterFrequency = "14000 Hz")
+                    ),
+                    selected = false,
+                    isCustom = true
+                )
+            ),
+            customPreset = CustomPreset()
         )
     )
+
 }

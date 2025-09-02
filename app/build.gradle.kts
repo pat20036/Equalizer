@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":ui-components"))
     implementation(project(":viewmodel-extensions"))
     implementation(libs.gson)
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.hilt.android)

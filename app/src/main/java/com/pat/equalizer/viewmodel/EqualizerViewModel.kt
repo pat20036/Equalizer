@@ -1,7 +1,6 @@
 package com.pat.equalizer.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.pat.equalizer.model.BandLevel
 import com.pat.equalizer.model.CustomPreset
 import com.pat.equalizer.model.Preset
 import com.pat.equalizer.repository.EqualizerController
@@ -18,12 +17,19 @@ class EqualizerViewModel @Inject constructor(private val equalizerController: Eq
     override val state: MutableStateFlow<EqualizerUiState> = MutableStateFlow(EqualizerUiState())
 
     init {
-        updateState(EqualizerUiState(presets = equalizerController.getPresets(), levels = equalizerController.getBandsLevel()))
+        updateState(EqualizerUiState(presets = equalizerController.getPresets()))
         collectLatestAction {
             when (it) {
                 is EqualizerAction.UsePreset -> {
-                    equalizerController.usePreset(it.id)
-                    updateState(state.value.copy(levels = equalizerController.getBandsLevel()))
+                    equalizerController.usePreset(it.preset) { bandLevels ->
+                        updateState(state.value.copy(presets = state.value.presets.map { preset ->
+                            if (preset.id == it.preset.id) {
+                                preset.copy(selected = true, bandLevels = bandLevels)
+                            } else {
+                                preset.copy(selected = false)
+                            }
+                        }))
+                    }
                 }
 
                 is EqualizerAction.ChangeBandLevel -> {
@@ -33,7 +39,6 @@ class EqualizerViewModel @Inject constructor(private val equalizerController: Eq
                 EqualizerAction.UseCustomPreset -> {
                     viewModelScope.launch {
                         equalizerController.useCustomPreset()
-                        updateState(state.value.copy(levels = equalizerController.getBandsLevel(), customPreset = equalizerController.getCustomPreset()))
                     }
                 }
 
@@ -47,12 +52,11 @@ class EqualizerViewModel @Inject constructor(private val equalizerController: Eq
 
 data class EqualizerUiState(
     val presets: List<Preset> = emptyList(),
-    val levels: List<BandLevel> = emptyList(),
     val customPreset: CustomPreset = CustomPreset()
 ) : BaseUiState
 
 sealed interface EqualizerAction {
-    data class UsePreset(val id: Short) : EqualizerAction
+    data class UsePreset(val preset: Preset) : EqualizerAction
     data class ChangeBandLevel(val band: Short, val level: Short) : EqualizerAction
     data object UseCustomPreset : EqualizerAction
     data object SetCustomPreset : EqualizerAction

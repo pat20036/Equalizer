@@ -21,9 +21,8 @@ private val Context.dataStore by preferencesDataStore(name = EqualizerController
 
 interface EqualizerController {
     fun getPresets(): List<Preset>
-    fun usePreset(preset: Short)
+    fun usePreset(preset: Preset, bandLevels: (List<BandLevel>) -> Unit)
     fun setBandLevel(band: Short, level: Short)
-    fun getBandsLevel(): List<BandLevel>
     suspend fun useCustomPreset()
     suspend fun saveCustomPreset()
     suspend fun getCustomPreset(): CustomPreset
@@ -40,20 +39,6 @@ class EqualizerControllerImpl @Inject constructor(private val context: Context, 
 
     override fun setBandLevel(band: Short, level: Short) {
         equalizer.setBandLevel(band, level)
-    }
-
-    override fun getBandsLevel(): List<BandLevel> {
-        val levels = mutableListOf<BandLevel>()
-        for (level in 0 until equalizer.numberOfBands) {
-            val levelIndex = level.toShort()
-            levels.add(
-                BandLevel(
-                    level = equalizer.getBandLevel(levelIndex).toFloat(),
-                    hzCenterFrequency = equalizer.getCenterFreq(levelIndex).convertMiliherzToHerzFormatted()
-                )
-            )
-        }
-        return levels
     }
 
     override suspend fun useCustomPreset() {
@@ -73,17 +58,44 @@ class EqualizerControllerImpl @Inject constructor(private val context: Context, 
     }
 
     override fun getPresets(): List<Preset> {
+        return getSystemPresets()
+    }
+
+    override fun usePreset(preset: Preset, bandLevels: (List<BandLevel>) -> Unit) {
+        equalizer.usePreset(preset.id)
+        bandLevels(getSystemPresetsBandLevels())
+    }
+
+    private fun getSystemPresets(): List<Preset> {
         val presets = mutableListOf<Preset>()
 
         for (preset in 0 until equalizer.numberOfPresets) {
             val presetIndex = preset.toShort()
-            presets.add(Preset(name = equalizer.getPresetName(presetIndex), id = presetIndex))
+            presets.add(
+                Preset(
+                    name = equalizer.getPresetName(presetIndex),
+                    id = presetIndex,
+                    bandLevels = getSystemPresetsBandLevels(),
+                    selected = presetIndex == 0.toShort()
+                )
+            )
         }
+
         return presets
     }
 
-    override fun usePreset(preset: Short) {
-        equalizer.usePreset(preset)
+    private fun getSystemPresetsBandLevels(): List<BandLevel> {
+        val levels = mutableListOf<BandLevel>()
+        for (level in 0 until equalizer.numberOfBands) {
+            val levelIndex = level.toShort()
+            levels.add(
+                BandLevel(
+                    level = equalizer.getBandLevel(levelIndex),
+                    hzCenterFrequency = equalizer.getCenterFreq(levelIndex).convertMiliherzToHerzFormatted()
+                )
+            )
+        }
+        return levels
     }
 
     private suspend fun setCustomPreset() {
