@@ -37,4 +37,20 @@ class EqualizerDataStore @Inject constructor(
             prefs[presetsKey] = json
         }
     }
+
+    suspend fun updateSinglePreset(preset: Preset) {
+        val currentPresets = getPresets().first()
+        val updatedPresets = currentPresets.map { if (it.id == preset.id) preset else it }
+        val json = gson.toJson(updatedPresets)
+        context.dataStore.edit { prefs ->
+            prefs[presetsKey] = json
+        }
+    }
+
+    suspend fun updateAllPresets(presets: List<Preset>) {
+        val json = gson.toJson(presets)
+        context.dataStore.edit { prefs ->
+            prefs[presetsKey] = json
+        }
+    }
 }

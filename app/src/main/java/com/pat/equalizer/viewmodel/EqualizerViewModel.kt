@@ -7,6 +7,7 @@ import com.pat.equalizer.viewmodel.extensions.BaseUiState
 import com.pat.equalizer.viewmodel.extensions.StateViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,26 +17,29 @@ class EqualizerViewModel @Inject constructor(private val equalizerController: Eq
     override val state: MutableStateFlow<EqualizerUiState> = MutableStateFlow(EqualizerUiState())
 
     init {
-        updateState(EqualizerUiState(presets = equalizerController.getPresets()))
+        viewModelScope.launch {
+            equalizerController.presets.collectLatest {
+                updateState(EqualizerUiState(presets = it))
+            }
+        }
 
         collectLatestAction {
             when (it) {
                 is EqualizerAction.UsePreset -> {
-                    equalizerController.usePreset(it.preset) { bandLevels ->
-                        updateState(state.value.copy(presets = state.value.presets.map { preset ->
-                            if (preset.id == it.preset.id) {
-                                preset.copy(selected = true, bandLevels = bandLevels)
-                            } else {
-                                preset.copy(selected = false)
-                            }
-                        }))
+                    viewModelScope.launch {
+                        equalizerController.usePreset(it.preset)
                     }
                 }
 
                 is EqualizerAction.AddCustomPreset -> {
                     viewModelScope.launch {
                         equalizerController.addCustomPreset(it.name)
-                        updateState(state.value.copy(presets = equalizerController.getPresets()))
+                    }
+                }
+
+                is EqualizerAction.OnBandLevelChanged -> {
+                    viewModelScope.launch {
+                        equalizerController.onBandLevelChanged(it.preset, it.bandId, it.level)
                     }
                 }
             }
@@ -50,4 +54,5 @@ data class EqualizerUiState(
 sealed interface EqualizerAction {
     data class UsePreset(val preset: Preset) : EqualizerAction
     data class AddCustomPreset(val name: String) : EqualizerAction
+    data class OnBandLevelChanged(val preset: Preset, val bandId: Int, val level: Short) : EqualizerAction
 }
