@@ -1,11 +1,11 @@
-package com.pat.equalizer.repository
+package com.pat.equalizer.core
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
-import com.pat.equalizer.model.Preset
+import com.pat.equalizer.core.model.Preset
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

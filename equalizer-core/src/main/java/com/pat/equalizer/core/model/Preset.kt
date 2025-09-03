@@ -1,4 +1,4 @@
-package com.pat.equalizer.model
+package com.pat.equalizer.core.model
 
 data class Preset(
     val name: String,

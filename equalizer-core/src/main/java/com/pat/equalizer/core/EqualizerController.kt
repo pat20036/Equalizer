@@ -1,8 +1,8 @@
-package com.pat.equalizer.repository
+package com.pat.equalizer.core
 
 import android.media.audiofx.Equalizer
-import com.pat.equalizer.model.Band
-import com.pat.equalizer.model.Preset
+import com.pat.equalizer.core.model.Band
+import com.pat.equalizer.core.model.Preset
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

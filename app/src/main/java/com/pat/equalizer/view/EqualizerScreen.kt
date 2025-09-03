@@ -34,8 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pat.equalizer.components.EqualizerSlider
-import com.pat.equalizer.model.Band
-import com.pat.equalizer.model.Preset
+import com.pat.equalizer.core.model.Band
+import com.pat.equalizer.core.model.Preset
 import com.pat.equalizer.viewmodel.EqualizerAction
 import com.pat.equalizer.viewmodel.EqualizerUiState
 import com.pat.equalizer.viewmodel.EqualizerViewModel

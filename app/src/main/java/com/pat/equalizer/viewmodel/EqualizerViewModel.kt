@@ -1,8 +1,8 @@
 package com.pat.equalizer.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.pat.equalizer.model.Preset
-import com.pat.equalizer.repository.EqualizerController
+import com.pat.equalizer.core.EqualizerController
+import com.pat.equalizer.core.model.Preset
 import com.pat.equalizer.viewmodel.extensions.BaseUiState
 import com.pat.equalizer.viewmodel.extensions.StateViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
