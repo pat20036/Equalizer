@@ -70,7 +70,7 @@ private fun EqualizerScreen(
     state: EqualizerUiState,
     onPresetClick: (Preset) -> Unit = {},
     addCustomPreset: (String) -> Unit = {},
-    onBandLevelChanged: (preset: Preset, bandId: Int, level: Float) -> Unit = { _, _, _ -> }
+    onBandLevelChanged: BandLevelChange = { _, _, _ -> }
 ) {
     val selectedPreset = state.presets.firstOrNull { it.selected }
 
@@ -141,7 +141,7 @@ private fun PresetsDropdown(presets: List<Preset>, onPresetClick: (preset: Prese
 fun EqualizerBars(
     preset: Preset,
     bands: List<Band>,
-    onBandLevelChanged: (preset: Preset, bandId: Int, level: Float) -> Unit
+    onBandLevelChanged: BandLevelChange
 ) {
     Column(
         modifier = Modifier
@@ -168,6 +168,8 @@ fun EqualizerBars(
         }
     }
 }
+
+typealias BandLevelChange = (preset: Preset, bandId: Int, level: Float) -> Unit
 
 @Preview(showBackground = true)
 @Composable

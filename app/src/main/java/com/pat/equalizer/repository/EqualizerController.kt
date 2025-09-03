@@ -34,6 +34,8 @@ class EqualizerControllerImpl @Inject constructor(
     override val presets: StateFlow<List<Preset>> = _presets.asStateFlow()
 
     init {
+        var isFirstLaunch = true
+
         equalizer.apply {
             if (!enabled) enabled = true
         }
@@ -47,6 +49,12 @@ class EqualizerControllerImpl @Inject constructor(
 
             dataStore.getPresets().collectLatest { presets ->
                 _presets.value = presets
+                if (isFirstLaunch) {
+                    isFirstLaunch = false
+                    presets.firstOrNull { it.selected }?.let {
+                        usePreset(it)
+                    }
+                }
             }
         }
     }
