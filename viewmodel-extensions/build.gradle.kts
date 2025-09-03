@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pat.viewmodel.extensions"
+    namespace = "com.pat.equalizer.viewmodel.extensions"
     compileSdk = 36
 
     defaultConfig {
