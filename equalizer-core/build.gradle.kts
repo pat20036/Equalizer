@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pat.equalizer"
+    namespace = "com.pat.equalizer.core"
     compileSdk = 36
 
     defaultConfig {
