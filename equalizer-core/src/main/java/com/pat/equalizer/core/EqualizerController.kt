@@ -116,6 +116,10 @@ class EqualizerControllerImpl @Inject constructor(
     private fun getBands(default: Boolean = false) = List(equalizer.numberOfBands.toInt()) { index ->
         Band(
             level = if (default) 0 else equalizer.getBandLevel(index.toShort()),
+            range = IntRange(
+                start = equalizer.bandLevelRange[0].toInt(),
+                endInclusive = equalizer.bandLevelRange[1].toInt()
+            ),
             hzCenterFrequency = equalizer.getCenterFreq(index.toShort()).convertMiliherzToHerzFormatted()
         )
     }

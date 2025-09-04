@@ -162,6 +162,7 @@ fun EqualizerBars(
             EqualizerSlider(
                 topText = band.hzCenterFrequency,
                 value = bandValue,
+                valueRange = band.range.first.toFloat()..band.range.last.toFloat(),
                 onValueChange = { newValue ->
                     bandValue = newValue
                 },
@@ -186,11 +187,10 @@ private fun EqualizerScreenPreview() {
                     name = "Normal",
                     id = 0,
                     bands = listOf(
-                        Band(level = 0, hzCenterFrequency = "60 Hz"),
-                        Band(level = 0, hzCenterFrequency = "230 Hz"),
-                        Band(level = 0, hzCenterFrequency = "910 Hz"),
-                        Band(level = 0, hzCenterFrequency = "3600 Hz"),
-                        Band(level = 0, hzCenterFrequency = "14000 Hz")
+                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "60 Hz"),
+                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "230 Hz"),
+                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "460 Hz"),
+                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "910 Hz"),
                     ),
                     selected = true
                 ),
@@ -198,11 +198,10 @@ private fun EqualizerScreenPreview() {
                     name = "Custom",
                     id = 1,
                     bands = listOf(
-                        Band(level = 0, hzCenterFrequency = "60 Hz"),
-                        Band(level = 0, hzCenterFrequency = "230 Hz"),
-                        Band(level = 0, hzCenterFrequency = "910 Hz"),
-                        Band(level = 0, hzCenterFrequency = "3600 Hz"),
-                        Band(level = 0, hzCenterFrequency = "14000 Hz")
+                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "60 Hz"),
+                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "230 Hz"),
+                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "460 Hz"),
+                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "910 Hz"),
                     ),
                     selected = false,
                     isCustom = true

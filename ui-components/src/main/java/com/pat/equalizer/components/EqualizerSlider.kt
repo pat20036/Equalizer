@@ -13,7 +13,7 @@ fun EqualizerSlider(
     value: Float,
     modifier: Modifier = Modifier,
     enabled: Boolean = false,
-    valueRange: ClosedFloatingPointRange<Float> = -1500f..1500f,
+    valueRange: ClosedFloatingPointRange<Float>,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
 ) {
@@ -32,5 +32,5 @@ fun EqualizerSlider(
 @Preview(showBackground = true)
 @Composable
 private fun EqualizerSliderPreview() {
-    EqualizerSlider("100 Hz", 100f, onValueChange = {}, onValueChangeFinished = {})
+    EqualizerSlider("100 Hz", 100f, onValueChange = {}, valueRange = -1500f..1500f, onValueChangeFinished = {})
 }
