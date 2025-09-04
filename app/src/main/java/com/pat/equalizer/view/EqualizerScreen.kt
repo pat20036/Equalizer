@@ -3,6 +3,7 @@ package com.pat.equalizer.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -26,9 +28,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,7 +57,7 @@ fun EqualizerScreen() {
             equalizerViewModel.emitAction(EqualizerAction.OnBandLevelChanged(preset, band, level.toInt().toShort()))
         },
         onEqualizerSwitchChange = {
-            equalizerViewModel.emitAction(EqualizerAction.UpdateEqualizerSwitchState(it))
+            equalizerViewModel.emitAction(EqualizerAction.SetSwitchState(it))
         })
 }
 
@@ -65,7 +67,8 @@ private fun EqualizerScreen(
     state: EqualizerUiState,
     onPresetClick: (Preset) -> Unit = {},
     addCustomPreset: (String) -> Unit = {},
-    onBandLevelChanged: BandLevelChange = { _, _, _ -> }
+    onBandLevelChanged: BandLevelChange = { _, _, _ -> },
+    onEqualizerSwitchChange: (Boolean) -> Unit = { }
 ) {
     val selectedPreset = state.presets.firstOrNull { it.selected }
 
@@ -80,6 +83,13 @@ private fun EqualizerScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Equalizer")
+                Switch(checked = state.equalizerSwitchState, onCheckedChange = {
+                    onEqualizerSwitchChange(it)
+                })
+            }
+
             selectedPreset?.let {
                 EqualizerBars(selectedPreset, selectedPreset.bands, onBandLevelChanged)
 

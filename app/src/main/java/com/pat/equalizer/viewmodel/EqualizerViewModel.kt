@@ -18,8 +18,8 @@ class EqualizerViewModel @Inject constructor(private val equalizerController: Eq
 
     init {
         viewModelScope.launch {
-            equalizerController.presets.collectLatest {
-                updateState(EqualizerUiState(presets = it))
+            equalizerController.configuration.collectLatest {
+                updateState(state.value.copy(presets = it.presets, equalizerSwitchState = it.enabled))
             }
         }
 
@@ -42,17 +42,25 @@ class EqualizerViewModel @Inject constructor(private val equalizerController: Eq
                         equalizerController.onBandLevelChanged(it.preset, it.bandId, it.level)
                     }
                 }
+
+                is EqualizerAction.SetSwitchState -> {
+                    viewModelScope.launch {
+                        equalizerController.changeState(it.isChecked)
+                    }
+                }
             }
         }
     }
 }
 
 data class EqualizerUiState(
-    val presets: List<Preset> = emptyList()
+    val presets: List<Preset> = emptyList(),
+    val equalizerSwitchState: Boolean = false
 ) : BaseUiState
 
 sealed interface EqualizerAction {
     data class UsePreset(val preset: Preset) : EqualizerAction
     data class AddCustomPreset(val name: String) : EqualizerAction
     data class OnBandLevelChanged(val preset: Preset, val bandId: Int, val level: Short) : EqualizerAction
+    data class SetSwitchState(val isChecked: Boolean) : EqualizerAction
 }

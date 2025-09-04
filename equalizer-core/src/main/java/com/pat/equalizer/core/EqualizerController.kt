@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 interface EqualizerController {
-    val presets: StateFlow<List<Preset>>
+    val configuration: StateFlow<EqualizerConfiguration>
+    suspend fun changeState(enabled: Boolean)
     suspend fun usePreset(preset: Preset)
     suspend fun addCustomPreset(name: String)
     suspend fun onBandLevelChanged(preset: Preset, bandId: Int, level: Short)
@@ -25,33 +26,37 @@ class EqualizerControllerImpl @Inject constructor(
     private val dataStore: EqualizerDataStore
 ) : EqualizerController {
 
-    private val _presets = MutableStateFlow<List<Preset>>(emptyList())
-    override val presets: StateFlow<List<Preset>> = _presets.asStateFlow()
+    private val _configuration = MutableStateFlow(EqualizerConfiguration())
+    override val configuration: StateFlow<EqualizerConfiguration> = _configuration.asStateFlow()
 
     init {
         var isFirstLaunch = true
 
-        equalizer.apply {
-            if (!enabled) enabled = true
-        }
-
         CoroutineScope(Dispatchers.IO).launch {
-            if (dataStore.getPresets().first().isEmpty()) {
+            if (dataStore.getConfiguration().first().presets.isEmpty()) {
                 getSystemPresets().forEachIndexed { index, preset ->
                     dataStore.addPreset(preset.copy(selected = index == 0))
                 }
             }
 
-            dataStore.getPresets().collectLatest { presets ->
-                _presets.value = presets
+            _configuration.value = dataStore.getConfiguration().first()
+
+            configuration.collectLatest {
+                equalizer.enabled = it.enabled
+
                 if (isFirstLaunch) {
                     isFirstLaunch = false
-                    presets.firstOrNull { it.selected }?.let {
-                        usePreset(it)
+                    it.presets.firstOrNull { it.selected }?.let { preset ->
+                        usePreset(preset)
                     }
                 }
             }
         }
+    }
+
+    override suspend fun changeState(enabled: Boolean) {
+        updateConfigurationState(enabled = enabled)
+        dataStore.updateConfiguration(configuration.value)
     }
 
     override suspend fun usePreset(preset: Preset) {
@@ -62,21 +67,23 @@ class EqualizerControllerImpl @Inject constructor(
         } else {
             equalizer.usePreset(preset.id.toShort())
         }
-        _presets.value = _presets.value.map {
-            it.copy(selected = it.id == preset.id, bands = if (it.isCustom) it.bands else getBands())
-        }
 
-        dataStore.updateAllPresets(_presets.value)
+        updateConfigurationState(presets = _configuration.value.presets.map {
+            it.copy(selected = it.id == preset.id, bands = if (it.isCustom) it.bands else getBands())
+        })
+
+        dataStore.updateAllPresets(configuration.value.presets)
     }
 
     override suspend fun addCustomPreset(name: String) {
         val preset = Preset(
             name = name,
-            id = presets.value.lastIndex + 1,
+            id = configuration.value.presets.lastIndex + 1,
             bands = getBands(true),
             isCustom = true
         )
 
+        updateConfigurationState(presets = configuration.value.presets + preset)
         dataStore.addPreset(preset)
     }
 
@@ -91,7 +98,11 @@ class EqualizerControllerImpl @Inject constructor(
             }
         )
 
-        dataStore.updateSinglePreset(updatedPreset)
+        updateConfigurationState(presets = configuration.value.presets.map {
+            if (it.id == preset.id) updatedPreset else it
+        })
+
+        dataStore.updatePreset(updatedPreset)
     }
 
     private fun getSystemPresets() = List(equalizer.numberOfPresets.toInt()) { index ->
@@ -107,6 +118,13 @@ class EqualizerControllerImpl @Inject constructor(
             level = if (default) 0 else equalizer.getBandLevel(index.toShort()),
             hzCenterFrequency = equalizer.getCenterFreq(index.toShort()).convertMiliherzToHerzFormatted()
         )
+    }
+
+    private fun updateConfigurationState(
+        enabled: Boolean = configuration.value.enabled,
+        presets: List<Preset> = configuration.value.presets
+    ) {
+        _configuration.value = configuration.value.copy(enabled = enabled, presets = presets)
     }
 
     private fun Int.convertMiliherzToHerzFormatted() = (this / 1000).toString() + " Hz"

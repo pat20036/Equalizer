@@ -1,6 +1,7 @@
 package com.pat.equalizer.core
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -21,6 +22,7 @@ class EqualizerDataStore @Inject constructor(
 ) {
     private val gson = Gson()
     private val presetsKey = stringPreferencesKey("presetsJson")
+    private val enabledKey = booleanPreferencesKey("enabled")
 
     fun getPresets(): Flow<List<Preset>> =
         context.dataStore.data.map { preferences ->
@@ -28,6 +30,23 @@ class EqualizerDataStore @Inject constructor(
                 gson.fromJson(json, Array<Preset>::class.java)?.toList() ?: emptyList()
             } ?: emptyList()
         }
+
+    fun getConfiguration(): Flow<EqualizerConfiguration> =
+        context.dataStore.data.map { preferences ->
+            val enabled = preferences[enabledKey] ?: false
+            val presets = preferences[presetsKey]?.let { json ->
+                gson.fromJson(json, Array<Preset>::class.java)?.toList() ?: emptyList()
+            } ?: emptyList()
+            EqualizerConfiguration(enabled = enabled, presets = presets)
+        }
+
+    suspend fun updateConfiguration(config: EqualizerConfiguration) {
+        val json = gson.toJson(config.presets)
+        context.dataStore.edit { prefs ->
+            prefs[enabledKey] = config.enabled
+            prefs[presetsKey] = json
+        }
+    }
 
     suspend fun addPreset(preset: Preset) {
         val currentPresets = getPresets().first()
@@ -38,7 +57,7 @@ class EqualizerDataStore @Inject constructor(
         }
     }
 
-    suspend fun updateSinglePreset(preset: Preset) {
+    suspend fun updatePreset(preset: Preset) {
         val currentPresets = getPresets().first()
         val updatedPresets = currentPresets.map { if (it.id == preset.id) preset else it }
         val json = gson.toJson(updatedPresets)
@@ -54,3 +73,8 @@ class EqualizerDataStore @Inject constructor(
         }
     }
 }
+
+data class EqualizerConfiguration(
+    var enabled: Boolean = false,
+    var presets: List<Preset> = emptyList()
+)
