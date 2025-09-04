@@ -31,13 +31,13 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.runtime.android)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.bundles.androidx)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.bundles.compose)
+
+    debugImplementation(libs.bundles.composeDebug)
+
+    testImplementation(libs.bundles.test)
+
+    androidTestImplementation(libs.bundles.androidTest)
 }
