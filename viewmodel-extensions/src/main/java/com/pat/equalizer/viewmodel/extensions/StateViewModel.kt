@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -27,8 +29,10 @@ abstract class StateViewModel<STATE_TYPE : BaseUiState, ACTION_TYPE> : ViewModel
         }
     }
 
-    suspend fun emitAction(value: ACTION_TYPE) {
-        _action.emit(value)
+    fun emitAction(value: ACTION_TYPE) {
+        CoroutineScope(Dispatchers.Main).launch {
+            _action.emit(value)
+        }
     }
 
     fun collectLatestAction(uiAction: (ACTION_TYPE) -> Unit) {

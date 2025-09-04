@@ -39,28 +39,23 @@ import com.pat.equalizer.core.model.Preset
 import com.pat.equalizer.viewmodel.EqualizerAction
 import com.pat.equalizer.viewmodel.EqualizerUiState
 import com.pat.equalizer.viewmodel.EqualizerViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun EqualizerScreen() {
     val equalizerViewModel: EqualizerViewModel = hiltViewModel()
-    val coroutineScope = rememberCoroutineScope()
     EqualizerScreen(
         state = equalizerViewModel.getCurrentState(),
         onPresetClick = { id ->
-            coroutineScope.launch {
-                equalizerViewModel.emitAction(EqualizerAction.UsePreset(id))
-            }
+            equalizerViewModel.emitAction(EqualizerAction.UsePreset(id))
         },
         addCustomPreset = {
-            coroutineScope.launch {
-                equalizerViewModel.emitAction(EqualizerAction.AddCustomPreset(it))
-            }
+            equalizerViewModel.emitAction(EqualizerAction.AddCustomPreset(it))
         },
         onBandLevelChanged = { preset, band, level ->
-            coroutineScope.launch {
-                equalizerViewModel.emitAction(EqualizerAction.OnBandLevelChanged(preset, band, level.toInt().toShort()))
-            }
+            equalizerViewModel.emitAction(EqualizerAction.OnBandLevelChanged(preset, band, level.toInt().toShort()))
+        },
+        onEqualizerSwitchChange = {
+            equalizerViewModel.emitAction(EqualizerAction.UpdateEqualizerSwitchState(it))
         })
 }
 
