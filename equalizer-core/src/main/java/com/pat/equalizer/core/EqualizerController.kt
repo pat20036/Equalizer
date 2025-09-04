@@ -3,10 +3,6 @@ package com.pat.equalizer.core
 import android.media.audiofx.Equalizer
 import com.pat.equalizer.core.model.Band
 import com.pat.equalizer.core.model.Preset
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +12,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 
 interface EqualizerController {
     val presets: StateFlow<List<Preset>>
@@ -115,14 +110,4 @@ class EqualizerControllerImpl @Inject constructor(
     }
 
     private fun Int.convertMiliherzToHerzFormatted() = (this / 1000).toString() + " Hz"
-}
-
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class EqualizerControllerModule {
-    @Binds
-    @Singleton
-    abstract fun bindEqualizerController(
-        impl: EqualizerControllerImpl
-    ): EqualizerController
 }
