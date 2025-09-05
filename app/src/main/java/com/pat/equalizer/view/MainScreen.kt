@@ -52,7 +52,7 @@ fun MainScreen(navController: NavHostController) {
     val mainViewModel: MainViewModel = hiltViewModel()
     MainScreen(
         state = mainViewModel.getCurrentState(),
-        navController= navController,
+        navController = navController,
         onPresetClick = { id ->
             mainViewModel.emitAction(MainAction.UsePreset(id))
         },
@@ -242,32 +242,34 @@ typealias BandLevelChange = (preset: Preset, bandId: Int, level: Float) -> Unit
 private fun MainScreenPreview() {
     MainScreen(
         state = MainUiState(
-            EqualizerUiState(presets = listOf(
-                Preset(
-                    name = "Normal",
-                    id = 0,
-                    bands = listOf(
-                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "60 Hz"),
-                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "230 Hz"),
-                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "460 Hz"),
-                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "910 Hz"),
+            EqualizerUiState(
+                presets = listOf(
+                    Preset(
+                        name = "Normal",
+                        id = 0,
+                        bands = listOf(
+                            Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "60 Hz"),
+                            Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "230 Hz"),
+                            Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "460 Hz"),
+                            Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "910 Hz"),
+                        ),
+                        selected = true
                     ),
-                    selected = true
-                ),
-                Preset(
-                    name = "Custom",
-                    id = 1,
-                    bands = listOf(
-                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "60 Hz"),
-                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "230 Hz"),
-                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "460 Hz"),
-                        Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "910 Hz"),
-                    ),
-                    selected = false,
-                    isCustom = true
+                    Preset(
+                        name = "Custom",
+                        id = 1,
+                        bands = listOf(
+                            Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "60 Hz"),
+                            Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "230 Hz"),
+                            Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "460 Hz"),
+                            Band(level = 0, range = IntRange(-1500, 1500), hzCenterFrequency = "910 Hz"),
+                        ),
+                        selected = false,
+                        isCustom = true
+                    )
                 )
             )
-        )),
+        ),
         navController = rememberNavController()
     )
 
