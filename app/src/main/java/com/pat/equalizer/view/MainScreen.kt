@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -38,40 +39,46 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pat.equalizer.components.EqualizerSlider
 import com.pat.equalizer.core.model.Band
 import com.pat.equalizer.core.model.Preset
-import com.pat.equalizer.viewmodel.EqualizerAction
 import com.pat.equalizer.viewmodel.EqualizerUiState
-import com.pat.equalizer.viewmodel.EqualizerViewModel
+import com.pat.equalizer.viewmodel.MainAction
+import com.pat.equalizer.viewmodel.MainUiState
+import com.pat.equalizer.viewmodel.MainViewModel
 
 @Composable
-fun EqualizerScreen() {
-    val equalizerViewModel: EqualizerViewModel = hiltViewModel()
-    EqualizerScreen(
-        state = equalizerViewModel.getCurrentState(),
+fun MainScreen() {
+    val mainViewModel: MainViewModel = hiltViewModel()
+    MainScreen(
+        state = mainViewModel.getCurrentState(),
         onPresetClick = { id ->
-            equalizerViewModel.emitAction(EqualizerAction.UsePreset(id))
+            mainViewModel.emitAction(MainAction.UsePreset(id))
         },
         addCustomPreset = {
-            equalizerViewModel.emitAction(EqualizerAction.AddCustomPreset(it))
+            mainViewModel.emitAction(MainAction.AddCustomPreset(it))
         },
         onBandLevelChanged = { preset, band, level ->
-            equalizerViewModel.emitAction(EqualizerAction.OnBandLevelChanged(preset, band, level.toInt().toShort()))
+            mainViewModel.emitAction(MainAction.OnBandLevelChanged(preset, band, level.toInt().toShort()))
         },
         onEqualizerSwitchChange = {
-            equalizerViewModel.emitAction(EqualizerAction.SetSwitchState(it))
+            mainViewModel.emitAction(MainAction.SetEqualizerSwitchState(it))
+        },
+        onBassBoostSwitchChange = {
+            mainViewModel.emitAction(MainAction.SetBassBoostSwitchState(it))
+        },
+        onStrengthLevelChange = {
+            mainViewModel.emitAction(MainAction.SetBassBoostStrength(it))
         })
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun EqualizerScreen(
-    state: EqualizerUiState,
+private fun MainScreen(
+    state: MainUiState,
     onPresetClick: (Preset) -> Unit = {},
     addCustomPreset: (String) -> Unit = {},
     onBandLevelChanged: BandLevelChange = { _, _, _ -> },
-    onEqualizerSwitchChange: (Boolean) -> Unit = { }
+    onEqualizerSwitchChange: (Boolean) -> Unit = { },
+    onBassBoostSwitchChange: (Boolean) -> Unit = { },
+    onStrengthLevelChange: (Int) -> Unit = { }
 ) {
-    val selectedPreset = state.presets.firstOrNull { it.selected }
-
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = { addCustomPreset("Custom") }) {
             Icon(imageVector = Icons.Default.PlaylistAddCircle, contentDescription = null)
@@ -83,22 +90,74 @@ private fun EqualizerScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Equalizer")
-                Switch(checked = state.equalizerSwitchState, onCheckedChange = {
-                    onEqualizerSwitchChange(it)
-                })
-            }
+            EqualizerSection(
+                state = state,
+                onBandLevelChanged = onBandLevelChanged,
+                onEqualizerSwitchChange = onEqualizerSwitchChange,
+                onPresetClick = onPresetClick
+            )
 
-            selectedPreset?.let {
-                EqualizerBars(selectedPreset, selectedPreset.bands, onBandLevelChanged)
-
-                PresetsDropdown(presets = state.presets, onPresetClick = { preset ->
-                    onPresetClick(preset)
-                })
-            } ?: LoadingIndicator()
+            BassBoostSection(
+                state = state,
+                onBassBoostSwitchChange = onBassBoostSwitchChange,
+                onStrengthLevelChange = onStrengthLevelChange
+            )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun EqualizerSection(
+    state: MainUiState,
+    onBandLevelChanged: BandLevelChange = { _, _, _ -> },
+    onEqualizerSwitchChange: (Boolean) -> Unit = { },
+    onPresetClick: (Preset) -> Unit = {}
+) {
+    val selectedPreset = state.equalizer.presets.firstOrNull { it.selected }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("Equalizer")
+        Switch(checked = state.equalizer.switchState, onCheckedChange = {
+            onEqualizerSwitchChange(it)
+        })
+    }
+
+    selectedPreset?.let {
+        EqualizerBars(selectedPreset, selectedPreset.bands, onBandLevelChanged)
+
+        PresetsDropdown(presets = state.equalizer.presets, onPresetClick = { preset ->
+            onPresetClick(preset)
+        })
+    } ?: LoadingIndicator()
+}
+
+@Composable
+fun BassBoostSection(
+    state: MainUiState,
+    onBassBoostSwitchChange: (Boolean) -> Unit,
+    onStrengthLevelChange: (Int) -> Unit = {}
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("Bass boost")
+        Switch(checked = state.bassBoost.switchState, onCheckedChange = {
+            onBassBoostSwitchChange(it)
+        })
+    }
+
+    var sliderValue by remember { mutableFloatStateOf(state.bassBoost.strength.toFloat()) }
+
+    LaunchedEffect(state.bassBoost.strength) {
+        sliderValue = state.bassBoost.strength.toFloat()
+    }
+
+    Slider(
+        value = sliderValue,
+        onValueChange = { sliderValue = it },
+        onValueChangeFinished = { onStrengthLevelChange(sliderValue.toInt()) },
+        valueRange = state.bassBoost.range.first.toFloat()..state.bassBoost.range.last.toFloat(),
+        enabled = state.bassBoost.switchState
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -179,10 +238,10 @@ typealias BandLevelChange = (preset: Preset, bandId: Int, level: Float) -> Unit
 
 @Preview(showBackground = true)
 @Composable
-private fun EqualizerScreenPreview() {
-    EqualizerScreen(
-        state = EqualizerUiState(
-            presets = listOf(
+private fun MainScreenPreview() {
+    MainScreen(
+        state = MainUiState(
+            EqualizerUiState(presets = listOf(
                 Preset(
                     name = "Normal",
                     id = 0,
@@ -207,7 +266,7 @@ private fun EqualizerScreenPreview() {
                     isCustom = true
                 )
             )
-        )
+        ))
     )
 
 }

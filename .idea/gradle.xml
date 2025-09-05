@@ -11,6 +11,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/bassboost-core" />
             <option value="$PROJECT_DIR$/equalizer-core" />
             <option value="$PROJECT_DIR$/ui-components" />
             <option value="$PROJECT_DIR$/viewmodel-extensions" />
