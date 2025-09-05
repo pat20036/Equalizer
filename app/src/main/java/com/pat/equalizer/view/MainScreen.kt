@@ -36,24 +36,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.pat.equalizer.components.EqualizerSlider
 import com.pat.equalizer.core.model.Band
 import com.pat.equalizer.core.model.Preset
+import com.pat.equalizer.navigation.EqualizerScreen
 import com.pat.equalizer.viewmodel.EqualizerUiState
 import com.pat.equalizer.viewmodel.MainAction
 import com.pat.equalizer.viewmodel.MainUiState
 import com.pat.equalizer.viewmodel.MainViewModel
 
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavHostController) {
     val mainViewModel: MainViewModel = hiltViewModel()
     MainScreen(
         state = mainViewModel.getCurrentState(),
+        navController= navController,
         onPresetClick = { id ->
             mainViewModel.emitAction(MainAction.UsePreset(id))
-        },
-        addCustomPreset = {
-            mainViewModel.emitAction(MainAction.AddCustomPreset(it))
         },
         onBandLevelChanged = { preset, band, level ->
             mainViewModel.emitAction(MainAction.OnBandLevelChanged(preset, band, level.toInt().toShort()))
@@ -72,15 +73,15 @@ fun MainScreen() {
 @Composable
 private fun MainScreen(
     state: MainUiState,
+    navController: NavHostController,
     onPresetClick: (Preset) -> Unit = {},
-    addCustomPreset: (String) -> Unit = {},
     onBandLevelChanged: BandLevelChange = { _, _, _ -> },
     onEqualizerSwitchChange: (Boolean) -> Unit = { },
     onBassBoostSwitchChange: (Boolean) -> Unit = { },
     onStrengthLevelChange: (Int) -> Unit = { }
 ) {
     Scaffold(floatingActionButton = {
-        FloatingActionButton(onClick = { addCustomPreset("Custom") }) {
+        FloatingActionButton(onClick = { navController.navigate(EqualizerScreen.AddNewPreset.route) }) {
             Icon(imageVector = Icons.Default.PlaylistAddCircle, contentDescription = null)
         }
     }) { paddingValues ->
@@ -266,7 +267,8 @@ private fun MainScreenPreview() {
                     isCustom = true
                 )
             )
-        ))
+        )),
+        navController = rememberNavController()
     )
 
 }

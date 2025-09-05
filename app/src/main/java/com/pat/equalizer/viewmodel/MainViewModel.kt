@@ -42,12 +42,6 @@ class MainViewModel @Inject constructor(
                     }
                 }
 
-                is MainAction.AddCustomPreset -> {
-                    viewModelScope.launch {
-                        equalizerController.addCustomPreset(it.name)
-                    }
-                }
-
                 is MainAction.OnBandLevelChanged -> {
                     viewModelScope.launch {
                         equalizerController.onBandLevelChanged(it.preset, it.bandId, it.level)
@@ -94,7 +88,6 @@ data class BassBoostUiState(
 
 sealed interface MainAction {
     data class UsePreset(val preset: Preset) : MainAction
-    data class AddCustomPreset(val name: String) : MainAction
     data class OnBandLevelChanged(val preset: Preset, val bandId: Int, val level: Short) : MainAction
     data class SetEqualizerSwitchState(val isChecked: Boolean) : MainAction
     data class SetBassBoostSwitchState(val isChecked: Boolean) : MainAction

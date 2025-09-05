@@ -3,6 +3,8 @@ package com.pat.equalizer.view
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.navigation.compose.rememberNavController
+import com.pat.equalizer.navigation.EqualizerNavHost
 import com.pat.equalizer.ui.theme.EqualizerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -12,7 +14,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             EqualizerTheme {
-                MainScreen()
+                val navController = rememberNavController()
+
+                EqualizerNavHost(navController = navController)
             }
         }
     }
