@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":equalizer-core"))
     implementation(project(":ui-components"))
     implementation(project(":viewmodel-extensions"))
+    implementation(project(":virtualizer-core"))
 
     ksp(libs.hilt.android.compiler)
 

@@ -42,10 +42,12 @@ import com.pat.equalizer.components.EqualizerSlider
 import com.pat.equalizer.core.model.Band
 import com.pat.equalizer.core.model.Preset
 import com.pat.equalizer.navigation.EqualizerScreen
+import com.pat.equalizer.viewmodel.BassBoostUiState
 import com.pat.equalizer.viewmodel.EqualizerUiState
 import com.pat.equalizer.viewmodel.MainAction
 import com.pat.equalizer.viewmodel.MainUiState
 import com.pat.equalizer.viewmodel.MainViewModel
+import com.pat.equalizer.viewmodel.VirtualizerUiState
 
 @Composable
 fun MainScreen(navController: NavHostController) {
@@ -65,8 +67,14 @@ fun MainScreen(navController: NavHostController) {
         onBassBoostSwitchChange = {
             mainViewModel.emitAction(MainAction.SetBassBoostSwitchState(it))
         },
-        onStrengthLevelChange = {
+        onBassBoostStrengthLevelChanged = {
             mainViewModel.emitAction(MainAction.SetBassBoostStrength(it))
+        },
+        onVirtualizerSwitchChange = {
+            mainViewModel.emitAction(MainAction.SetVirtualizerSwitchState(it))
+        },
+        onVirtualizerStrengthLevelChanged = {
+            mainViewModel.emitAction(MainAction.SetVirtualizerStrength(it))
         })
 }
 
@@ -78,7 +86,9 @@ private fun MainScreen(
     onBandLevelChanged: BandLevelChange = { _, _, _ -> },
     onEqualizerSwitchChange: (Boolean) -> Unit = { },
     onBassBoostSwitchChange: (Boolean) -> Unit = { },
-    onStrengthLevelChange: (Int) -> Unit = { }
+    onBassBoostStrengthLevelChanged: (Int) -> Unit = { },
+    onVirtualizerSwitchChange: (Boolean) -> Unit = { },
+    onVirtualizerStrengthLevelChanged: (Int) -> Unit = { }
 ) {
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = { navController.navigate(EqualizerScreen.AddNewPreset.route) }) {
@@ -99,9 +109,15 @@ private fun MainScreen(
             )
 
             BassBoostSection(
-                state = state,
-                onBassBoostSwitchChange = onBassBoostSwitchChange,
-                onStrengthLevelChange = onStrengthLevelChange
+                state = state.bassBoost,
+                onSwitchStateChange = onBassBoostSwitchChange,
+                onStrengthLevelChange = onBassBoostStrengthLevelChanged
+            )
+
+            VirtualizerSection(
+                state = state.virtualizer,
+                onSwitchStateChange = onVirtualizerSwitchChange,
+                onStrengthLevelChange = onVirtualizerStrengthLevelChanged
             )
         }
     }
@@ -135,29 +151,57 @@ private fun EqualizerSection(
 
 @Composable
 fun BassBoostSection(
-    state: MainUiState,
-    onBassBoostSwitchChange: (Boolean) -> Unit,
+    state: BassBoostUiState,
+    onSwitchStateChange: (Boolean) -> Unit,
     onStrengthLevelChange: (Int) -> Unit = {}
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text("Bass boost")
-        Switch(checked = state.bassBoost.switchState, onCheckedChange = {
-            onBassBoostSwitchChange(it)
+        Switch(checked = state.switchState, onCheckedChange = {
+            onSwitchStateChange(it)
         })
     }
 
-    var sliderValue by remember { mutableFloatStateOf(state.bassBoost.strength.toFloat()) }
+    var sliderValue by remember { mutableFloatStateOf(state.strength.toFloat()) }
 
-    LaunchedEffect(state.bassBoost.strength) {
-        sliderValue = state.bassBoost.strength.toFloat()
+    LaunchedEffect(state.strength) {
+        sliderValue = state.strength.toFloat()
     }
 
     Slider(
         value = sliderValue,
         onValueChange = { sliderValue = it },
         onValueChangeFinished = { onStrengthLevelChange(sliderValue.toInt()) },
-        valueRange = state.bassBoost.range.first.toFloat()..state.bassBoost.range.last.toFloat(),
-        enabled = state.bassBoost.switchState
+        valueRange = state.range.first.toFloat()..state.range.last.toFloat(),
+        enabled = state.switchState
+    )
+}
+
+@Composable
+fun VirtualizerSection(
+    state: VirtualizerUiState,
+    onSwitchStateChange: (Boolean) -> Unit,
+    onStrengthLevelChange: (Int) -> Unit = {}
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("Virtualizer")
+        Switch(checked = state.switchState, onCheckedChange = {
+            onSwitchStateChange(it)
+        })
+    }
+
+    var sliderValue by remember { mutableFloatStateOf(state.strength.toFloat()) }
+
+    LaunchedEffect(state.strength) {
+        sliderValue = state.strength.toFloat()
+    }
+
+    Slider(
+        value = sliderValue,
+        onValueChange = { sliderValue = it },
+        onValueChangeFinished = { onStrengthLevelChange(sliderValue.toInt()) },
+        valueRange = state.range.first.toFloat()..state.range.last.toFloat(),
+        enabled = state.switchState
     )
 }
 
