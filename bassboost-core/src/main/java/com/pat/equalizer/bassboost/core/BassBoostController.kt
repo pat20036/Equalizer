@@ -29,8 +29,8 @@ class BassBoostControllerImpl @Inject constructor(private val bassBoost: BassBoo
 
             configuration.collectLatest {
                 bassBoost.apply {
-                    bassBoost.enabled = it.enabled
-                    bassBoost.setStrength(it.strength.toShort())
+                    enabled = it.enabled
+                    setStrength(it.strength.toShort())
                 }
             }
         }

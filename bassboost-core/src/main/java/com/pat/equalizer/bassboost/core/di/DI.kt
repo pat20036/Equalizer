@@ -26,5 +26,5 @@ interface BassBoostBindsModule {
 
     @Binds
     @Singleton
-    fun bindEqualizerController(impl: BassBoostControllerImpl): BassBoostController
+    fun bindBassBoostController(impl: BassBoostControllerImpl): BassBoostController
 }
