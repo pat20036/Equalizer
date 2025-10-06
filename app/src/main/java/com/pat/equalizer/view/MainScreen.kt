@@ -1,8 +1,8 @@
 package com.pat.equalizer.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -34,12 +34,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.pat.equalizer.R
 import com.pat.equalizer.components.EqualizerSlider
 import com.pat.equalizer.components.ScreenTitleAppBar
 import com.pat.equalizer.components.SectionColumn
@@ -97,7 +100,7 @@ private fun MainScreen(
     onVirtualizerStrengthLevelChanged: (Int) -> Unit = { }
 ) {
     Scaffold(topBar = {
-        ScreenTitleAppBar("Equalizer")
+        ScreenTitleAppBar(text = stringResource(R.string.main_screen_title))
     }, floatingActionButton = {
         FloatingActionButton(onClick = { navController.navigate(EqualizerScreen.AddNewPreset.route) }) {
             Icon(imageVector = Icons.Default.PlaylistAddCircle, contentDescription = null)
@@ -145,7 +148,7 @@ private fun EqualizerSwitch(
 ) {
     SectionColumn(modifier = Modifier.fillMaxWidth()) {
         SectionSwitch(
-            text = "Equalizer",
+            text = stringResource(R.string.equalizer_section_title),
             icon = Icons.Default.Equalizer,
             checked = switchState,
             onSwitchStateChange = onEqualizerSwitchChange
@@ -181,7 +184,7 @@ fun BassBoostSection(
 ) {
     SectionColumn {
         SectionSwitch(
-            text = "Bass Boost",
+            text = stringResource(R.string.bass_boost_section_title),
             icon = Icons.Default.GraphicEq,
             checked = state.switchState,
             onSwitchStateChange = onSwitchStateChange
@@ -212,7 +215,7 @@ fun VirtualizerSection(
 ) {
     SectionColumn {
         SectionSwitch(
-            text = "Virtualizer",
+            text = stringResource(R.string.virtualizer_section_title),
             icon = Icons.Default.SpatialAudio,
             checked = state.switchState,
             onSwitchStateChange = onSwitchStateChange
@@ -241,11 +244,13 @@ private fun PresetsDropdown(presets: List<Preset>, onPresetClick: (preset: Prese
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(presets.firstOrNull { it.selected }?.name) }
 
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp)
+            .padding(vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        Text(stringResource(R.string.preset_section_title), modifier = Modifier.padding(end = 16.dp))
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = {
