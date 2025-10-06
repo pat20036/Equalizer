@@ -3,12 +3,16 @@ package com.pat.equalizer.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Equalizer
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.PlaylistAddCircle
+import androidx.compose.material.icons.filled.SpatialAudio
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -20,7 +24,6 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -31,7 +34,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,8 +41,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.pat.equalizer.components.EqualizerSlider
+import com.pat.equalizer.components.ScreenTitleAppBar
+import com.pat.equalizer.components.SectionColumn
+import com.pat.equalizer.components.SectionSwitch
 import com.pat.equalizer.core.model.Band
 import com.pat.equalizer.core.model.Preset
+import com.pat.equalizer.modifiers.defaultHorizontalPadding
 import com.pat.equalizer.navigation.EqualizerScreen
 import com.pat.equalizer.viewmodel.BassBoostUiState
 import com.pat.equalizer.viewmodel.EqualizerUiState
@@ -90,7 +96,9 @@ private fun MainScreen(
     onVirtualizerSwitchChange: (Boolean) -> Unit = { },
     onVirtualizerStrengthLevelChanged: (Int) -> Unit = { }
 ) {
-    Scaffold(floatingActionButton = {
+    Scaffold(topBar = {
+        ScreenTitleAppBar("Equalizer")
+    }, floatingActionButton = {
         FloatingActionButton(onClick = { navController.navigate(EqualizerScreen.AddNewPreset.route) }) {
             Icon(imageVector = Icons.Default.PlaylistAddCircle, contentDescription = null)
         }
@@ -98,13 +106,20 @@ private fun MainScreen(
         Column(
             modifier = Modifier
                 .padding(paddingValues)
-                .fillMaxSize()
+                .defaultHorizontalPadding()
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.background)
         ) {
+
+            EqualizerSwitch(
+                switchState = state.equalizer.switchState,
+                onEqualizerSwitchChange = onEqualizerSwitchChange
+            )
+
             EqualizerSection(
-                state = state,
+                presets = state.equalizer.presets,
                 onBandLevelChanged = onBandLevelChanged,
-                onEqualizerSwitchChange = onEqualizerSwitchChange,
                 onPresetClick = onPresetClick
             )
 
@@ -123,30 +138,39 @@ private fun MainScreen(
     }
 }
 
+@Composable
+private fun EqualizerSwitch(
+    switchState: Boolean,
+    onEqualizerSwitchChange: (Boolean) -> Unit = { },
+) {
+    SectionColumn(modifier = Modifier.fillMaxWidth()) {
+        SectionSwitch(
+            text = "Equalizer",
+            icon = Icons.Default.Equalizer,
+            checked = switchState,
+            onSwitchStateChange = onEqualizerSwitchChange
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun EqualizerSection(
-    state: MainUiState,
+    presets: List<Preset>,
     onBandLevelChanged: BandLevelChange = { _, _, _ -> },
-    onEqualizerSwitchChange: (Boolean) -> Unit = { },
     onPresetClick: (Preset) -> Unit = {}
 ) {
-    val selectedPreset = state.equalizer.presets.firstOrNull { it.selected }
+    val selectedPreset = presets.firstOrNull { it.selected }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text("Equalizer")
-        Switch(checked = state.equalizer.switchState, onCheckedChange = {
-            onEqualizerSwitchChange(it)
-        })
+    SectionColumn {
+        selectedPreset?.let {
+            EqualizerBars(selectedPreset, selectedPreset.bands, onBandLevelChanged)
+
+            PresetsDropdown(presets = presets, onPresetClick = { preset ->
+                onPresetClick(preset)
+            })
+        } ?: LoadingIndicator()
     }
-
-    selectedPreset?.let {
-        EqualizerBars(selectedPreset, selectedPreset.bands, onBandLevelChanged)
-
-        PresetsDropdown(presets = state.equalizer.presets, onPresetClick = { preset ->
-            onPresetClick(preset)
-        })
-    } ?: LoadingIndicator()
 }
 
 @Composable
@@ -155,26 +179,29 @@ fun BassBoostSection(
     onSwitchStateChange: (Boolean) -> Unit,
     onStrengthLevelChange: (Int) -> Unit = {}
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text("Bass boost")
-        Switch(checked = state.switchState, onCheckedChange = {
-            onSwitchStateChange(it)
-        })
+    SectionColumn {
+        SectionSwitch(
+            text = "Bass Boost",
+            icon = Icons.Default.GraphicEq,
+            checked = state.switchState,
+            onSwitchStateChange = onSwitchStateChange
+        )
+
+        var sliderValue by remember { mutableFloatStateOf(state.strength.toFloat()) }
+
+        LaunchedEffect(state.strength) {
+            sliderValue = state.strength.toFloat()
+        }
+
+        Slider(
+            value = sliderValue,
+            onValueChange = { sliderValue = it },
+            onValueChangeFinished = { onStrengthLevelChange(sliderValue.toInt()) },
+            valueRange = state.range.first.toFloat()..state.range.last.toFloat(),
+            steps = 5,
+            enabled = state.switchState
+        )
     }
-
-    var sliderValue by remember { mutableFloatStateOf(state.strength.toFloat()) }
-
-    LaunchedEffect(state.strength) {
-        sliderValue = state.strength.toFloat()
-    }
-
-    Slider(
-        value = sliderValue,
-        onValueChange = { sliderValue = it },
-        onValueChangeFinished = { onStrengthLevelChange(sliderValue.toInt()) },
-        valueRange = state.range.first.toFloat()..state.range.last.toFloat(),
-        enabled = state.switchState
-    )
 }
 
 @Composable
@@ -183,26 +210,29 @@ fun VirtualizerSection(
     onSwitchStateChange: (Boolean) -> Unit,
     onStrengthLevelChange: (Int) -> Unit = {}
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text("Virtualizer")
-        Switch(checked = state.switchState, onCheckedChange = {
-            onSwitchStateChange(it)
-        })
+    SectionColumn {
+        SectionSwitch(
+            text = "Virtualizer",
+            icon = Icons.Default.SpatialAudio,
+            checked = state.switchState,
+            onSwitchStateChange = onSwitchStateChange
+        )
+
+        var sliderValue by remember { mutableFloatStateOf(state.strength.toFloat()) }
+
+        LaunchedEffect(state.strength) {
+            sliderValue = state.strength.toFloat()
+        }
+
+        Slider(
+            value = sliderValue,
+            onValueChange = { sliderValue = it },
+            onValueChangeFinished = { onStrengthLevelChange(sliderValue.toInt()) },
+            valueRange = state.range.first.toFloat()..state.range.last.toFloat(),
+            steps = 5,
+            enabled = state.switchState
+        )
     }
-
-    var sliderValue by remember { mutableFloatStateOf(state.strength.toFloat()) }
-
-    LaunchedEffect(state.strength) {
-        sliderValue = state.strength.toFloat()
-    }
-
-    Slider(
-        value = sliderValue,
-        onValueChange = { sliderValue = it },
-        onValueChangeFinished = { onStrengthLevelChange(sliderValue.toInt()) },
-        valueRange = state.range.first.toFloat()..state.range.last.toFloat(),
-        enabled = state.switchState
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -214,7 +244,7 @@ private fun PresetsDropdown(presets: List<Preset>, onPresetClick: (preset: Prese
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(32.dp)
+            .padding(vertical = 16.dp)
     ) {
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -227,12 +257,14 @@ private fun PresetsDropdown(presets: List<Preset>, onPresetClick: (preset: Prese
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor()
+                modifier = Modifier.menuAnchor(),
+                shape = RoundedCornerShape(16.dp)
             )
 
             ExposedDropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { expanded = false },
+                shape = RoundedCornerShape(16.dp)
             ) {
                 presets.forEach {
                     DropdownMenuItem(text = { Text(it.name) }, onClick = {
