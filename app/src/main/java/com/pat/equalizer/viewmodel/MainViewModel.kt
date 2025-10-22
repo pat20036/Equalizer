@@ -30,22 +30,20 @@ class MainViewModel @Inject constructor(
         updateState(state.value.copy(volume = volumeController.getCurrentVolumeLevel()))
 
         viewModelScope.launch {
-            launch {
-                equalizerController.configuration.collectLatest {
-                    updateState(state.value.copy(equalizer = state.value.equalizer.copy(presets = it.presets, switchState = it.enabled)))
-                }
+            equalizerController.configuration.collectLatest {
+                updateState(state.value.copy(equalizer = state.value.equalizer.copy(presets = it.presets, switchState = it.enabled)))
             }
+        }
 
-            launch {
-                bassBoostController.configuration.collectLatest {
-                    updateState(state.value.copy(bassBoost = state.value.bassBoost.copy(strength = it.strength, switchState = it.enabled)))
-                }
+        viewModelScope.launch {
+            bassBoostController.configuration.collectLatest {
+                updateState(state.value.copy(bassBoost = state.value.bassBoost.copy(strength = it.strength, switchState = it.enabled)))
             }
+        }
 
-            launch {
-                virtualizerController.configuration.collectLatest {
-                    updateState(state.value.copy(virtualizer = state.value.virtualizer.copy(strength = it.strength, switchState = it.enabled)))
-                }
+        viewModelScope.launch {
+            virtualizerController.configuration.collectLatest {
+                updateState(state.value.copy(virtualizer = state.value.virtualizer.copy(strength = it.strength, switchState = it.enabled)))
             }
         }
 
