@@ -20,6 +20,13 @@
             android:name=".service.EqualizerService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+        <receiver android:name=".volume.core.receiver.VolumeChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.media.VOLUME_CHANGED_ACTION" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".view.MainActivity"
             android:exported="true"

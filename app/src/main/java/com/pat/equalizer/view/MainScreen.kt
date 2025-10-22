@@ -1,14 +1,17 @@
 package com.pat.equalizer.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.PlaylistAddCircle
@@ -21,11 +24,13 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.pat.equalizer.R
@@ -59,8 +63,7 @@ import com.pat.equalizer.viewmodel.MainViewModel
 import com.pat.equalizer.viewmodel.VirtualizerUiState
 
 @Composable
-fun MainScreen(navController: NavHostController) {
-    val mainViewModel: MainViewModel = hiltViewModel()
+fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
     MainScreen(
         state = mainViewModel.getCurrentState(),
         navController = navController,
@@ -114,6 +117,7 @@ private fun MainScreen(
                 .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.background)
         ) {
+            UserVolumeSection(state.volume.toFloat())
 
             EqualizerSwitch(
                 switchState = state.equalizer.switchState,
@@ -138,6 +142,42 @@ private fun MainScreen(
                 onStrengthLevelChange = onVirtualizerStrengthLevelChanged
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun UserVolumeSection(level: Float, modifier: Modifier = Modifier) {
+    var sliderValue by remember { mutableFloatStateOf(level) }
+
+    LaunchedEffect(level) {
+        sliderValue = level
+    }
+
+    SectionColumn {
+        Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(50.dp)
+                    .background(MaterialTheme.colorScheme.primary, shape = MaterialShapes.Cookie9Sided.toShape())
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.AutoMirrored.Default.VolumeUp,
+                    contentDescription = null
+                )
+            }
+            Text(text = stringResource(R.string.volume_section_title))
+        }
+
+        Slider(
+            value = sliderValue,
+            onValueChange = { sliderValue = it },
+            valueRange = 0f..25f,
+            enabled = false
+        )
     }
 }
 

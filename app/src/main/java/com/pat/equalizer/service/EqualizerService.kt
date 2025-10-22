@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
+import com.pat.equalizer.R
 
 class EqualizerService : Service() {
 
@@ -46,8 +47,8 @@ class EqualizerService : Service() {
 
     private fun buildNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentText("Equalizer is running")
-            .setContentTitle("Equalizer")
+            .setContentText(getString(R.string.notification_content_text))
+            .setContentTitle(getString(R.string.notification_content_title))
             .setSmallIcon(android.R.drawable.ic_media_play)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

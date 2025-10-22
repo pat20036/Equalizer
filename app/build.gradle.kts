@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":ui-components"))
     implementation(project(":viewmodel-extensions"))
     implementation(project(":virtualizer-core"))
+    implementation(project(":volume-core"))
 
     ksp(libs.hilt.android.compiler)
 

@@ -20,7 +20,7 @@ fun SectionColumn(modifier: Modifier = Modifier, content: @Composable ColumnScop
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             content()

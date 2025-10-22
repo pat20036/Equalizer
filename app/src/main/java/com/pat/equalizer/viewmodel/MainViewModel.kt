@@ -7,6 +7,7 @@ import com.pat.equalizer.core.model.Preset
 import com.pat.equalizer.viewmodel.extensions.BaseUiState
 import com.pat.equalizer.viewmodel.extensions.StateViewModel
 import com.pat.equalizer.virtualizer.core.VirtualizerController
+import com.pat.equalizer.volume.core.VolumeController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -17,13 +18,17 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val equalizerController: EqualizerController,
     private val bassBoostController: BassBoostController,
-    private val virtualizerController: VirtualizerController
+    private val virtualizerController: VirtualizerController,
+    volumeController: VolumeController
 ) :
     StateViewModel<MainUiState, MainAction>() {
 
     override val state: MutableStateFlow<MainUiState> = MutableStateFlow(MainUiState())
 
     init {
+
+        updateState(state.value.copy(volume = volumeController.getCurrentVolumeLevel()))
+
         viewModelScope.launch {
             launch {
                 equalizerController.configuration.collectLatest {
@@ -87,6 +92,10 @@ class MainViewModel @Inject constructor(
                         virtualizerController.setStrength(it.strength)
                     }
                 }
+
+                is MainAction.SetVolumeLevel -> {
+                    updateState(state.value.copy(volume = it.level))
+                }
             }
         }
     }
@@ -95,7 +104,8 @@ class MainViewModel @Inject constructor(
 data class MainUiState(
     val equalizer: EqualizerUiState = EqualizerUiState(),
     val bassBoost: BassBoostUiState = BassBoostUiState(),
-    val virtualizer: VirtualizerUiState = VirtualizerUiState()
+    val virtualizer: VirtualizerUiState = VirtualizerUiState(),
+    val volume: Int = 0
 ) : BaseUiState
 
 data class EqualizerUiState(
@@ -123,4 +133,5 @@ sealed interface MainAction {
     data class SetBassBoostStrength(val strength: Int) : MainAction
     data class SetVirtualizerSwitchState(val isChecked: Boolean) : MainAction
     data class SetVirtualizerStrength(val strength: Int) : MainAction
+    data class SetVolumeLevel(val level: Int) : MainAction
 }

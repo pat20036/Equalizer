@@ -6,17 +6,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.pat.equalizer.view.AddPresetScreen
 import com.pat.equalizer.view.MainScreen
+import com.pat.equalizer.viewmodel.MainViewModel
 import kotlinx.serialization.Serializable
 
 @Composable
-fun EqualizerNavHost(navController: NavHostController) {
+fun EqualizerNavHost(navController: NavHostController, mainViewModel: MainViewModel) {
     NavHost(navController = navController, startDestination = EqualizerScreen.Main.route) {
-         composable(EqualizerScreen.Main.route) {
-             MainScreen(navController = navController)
-         }
-         composable(EqualizerScreen.AddNewPreset.route) {
-             AddPresetScreen(navController = navController)
-         }
+        composable(EqualizerScreen.Main.route) {
+            MainScreen(navController = navController, mainViewModel)
+        }
+        composable(EqualizerScreen.AddNewPreset.route) {
+            AddPresetScreen(navController = navController)
+        }
     }
 }
 
