@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
@@ -16,11 +15,7 @@ import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.PlaylistAddCircle
 import androidx.compose.material.icons.filled.SpatialAudio
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
@@ -29,13 +24,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -55,6 +48,7 @@ import com.pat.equalizer.core.model.Band
 import com.pat.equalizer.core.model.Preset
 import com.pat.equalizer.modifiers.defaultHorizontalPadding
 import com.pat.equalizer.navigation.EqualizerScreen
+import com.pat.equalizer.view.components.PresetsDropdown
 import com.pat.equalizer.viewmodel.BassBoostUiState
 import com.pat.equalizer.viewmodel.EqualizerUiState
 import com.pat.equalizer.viewmodel.MainAction
@@ -69,6 +63,9 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
         navController = navController,
         onPresetClick = { id ->
             mainViewModel.emitAction(MainAction.UsePreset(id))
+        },
+        onPresetDelete = {
+            mainViewModel.emitAction(MainAction.DeletePreset(it))
         },
         onBandLevelChanged = { preset, band, level ->
             mainViewModel.emitAction(MainAction.OnBandLevelChanged(preset, band, level.toInt().toShort()))
@@ -95,6 +92,7 @@ private fun MainScreen(
     state: MainUiState,
     navController: NavHostController,
     onPresetClick: (Preset) -> Unit = {},
+    onPresetDelete: (Preset) -> Unit = {},
     onBandLevelChanged: BandLevelChange = { _, _, _ -> },
     onEqualizerSwitchChange: (Boolean) -> Unit = { },
     onBassBoostSwitchChange: (Boolean) -> Unit = { },
@@ -127,7 +125,8 @@ private fun MainScreen(
             EqualizerSection(
                 presets = state.equalizer.presets,
                 onBandLevelChanged = onBandLevelChanged,
-                onPresetClick = onPresetClick
+                onPresetClick = onPresetClick,
+                onPresetDelete = onPresetDelete
             )
 
             BassBoostSection(
@@ -201,7 +200,8 @@ private fun EqualizerSwitch(
 private fun EqualizerSection(
     presets: List<Preset>,
     onBandLevelChanged: BandLevelChange = { _, _, _ -> },
-    onPresetClick: (Preset) -> Unit = {}
+    onPresetClick: (Preset) -> Unit = {},
+    onPresetDelete: (Preset) -> Unit = {}
 ) {
     val selectedPreset = presets.firstOrNull { it.selected }
 
@@ -209,9 +209,9 @@ private fun EqualizerSection(
         selectedPreset?.let {
             EqualizerBars(selectedPreset, selectedPreset.bands, onBandLevelChanged)
 
-            PresetsDropdown(presets = presets, onPresetClick = { preset ->
+            PresetsDropdown(presets = presets, selectedPreset = selectedPreset, onPresetClick = { preset ->
                 onPresetClick(preset)
-            })
+            }, onPresetDelete = onPresetDelete)
         } ?: LoadingIndicator()
     }
 }
@@ -275,51 +275,6 @@ fun VirtualizerSection(
             steps = 5,
             enabled = state.switchState
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PresetsDropdown(presets: List<Preset>, onPresetClick: (preset: Preset) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(presets.firstOrNull { it.selected }?.name) }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(stringResource(R.string.preset_section_title), modifier = Modifier.padding(end = 16.dp))
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = {
-                expanded = !expanded
-            }
-        ) {
-            TextField(
-                value = selectedText ?: "",
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor(),
-                shape = RoundedCornerShape(16.dp)
-            )
-
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                presets.forEach {
-                    DropdownMenuItem(text = { Text(it.name) }, onClick = {
-                        selectedText = it.name
-                        expanded = false
-                        onPresetClick(it)
-                    })
-                }
-            }
-        }
     }
 }
 
