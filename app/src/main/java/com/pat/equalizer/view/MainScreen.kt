@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -212,7 +213,9 @@ private fun EqualizerSection(
             PresetsDropdown(presets = presets, selectedPreset = selectedPreset, onPresetClick = { preset ->
                 onPresetClick(preset)
             }, onPresetDelete = onPresetDelete)
-        } ?: LoadingIndicator()
+        } ?: Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            LoadingIndicator()
+        }
     }
 }
 
