@@ -8,6 +8,7 @@
     <string name="bass_boost_section_title">Bass Boost</string>
     <string name="virtualizer_section_title">Virtualizer</string>
     <string name="volume_section_title">Volume</string>
+    <string name="loudness_enhancer_checkbox_message">(Experimental) Try to adjust music loudness after turning on Equalizer.</string>
 
     <!--Add new preset screen-->
     <string name="add_preset_screen_title">Add New Preset</string>

@@ -21,9 +21,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "Equalizer"
 include(":app")
+include(":bassboost-core")
+include(":equalizer-core")
+include(":loudness-core")
 include(":ui-components")
 include(":viewmodel-extensions")
-include(":equalizer-core")
-include(":bassboost-core")
 include(":virtualizer-core")
 include(":volume-core")

@@ -3,6 +3,7 @@ package com.pat.equalizer.core
 import android.media.audiofx.Equalizer
 import com.pat.equalizer.core.model.Band
 import com.pat.equalizer.core.model.Preset
+import com.pat.equalizer.loudness.core.LoudnessController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,11 +21,13 @@ interface EqualizerController {
     suspend fun deletePreset(preset: Preset)
     suspend fun addCustomPreset(name: String, onSuccess: (() -> Unit), onFailure: (() -> Unit))
     suspend fun onBandLevelChanged(preset: Preset, bandId: Int, level: Short)
+    suspend fun changeLoudnessEnhancerState(enabled: Boolean)
 }
 
 class EqualizerControllerImpl @Inject constructor(
     private val equalizer: Equalizer,
-    private val dataStore: EqualizerDataStore
+    private val dataStore: EqualizerDataStore,
+    private val loudnessController: LoudnessController
 ) : EqualizerController {
 
     private val _configuration = MutableStateFlow(EqualizerConfiguration())
@@ -44,6 +47,7 @@ class EqualizerControllerImpl @Inject constructor(
 
             configuration.collectLatest {
                 equalizer.enabled = it.enabled
+                loudnessController.setEnabled(it.loudnessEnhancerEnabled)
 
                 if (isFirstLaunch) {
                     isFirstLaunch = false
@@ -118,6 +122,12 @@ class EqualizerControllerImpl @Inject constructor(
         dataStore.updatePreset(updatedPreset)
     }
 
+    override suspend fun changeLoudnessEnhancerState(enabled: Boolean) {
+        loudnessController.setEnabled(enabled)
+        updateConfigurationState(loudnessEnhancerEnabled = enabled)
+        dataStore.updateConfiguration(configuration.value)
+    }
+
     private fun getSystemPresets() = List(equalizer.numberOfPresets.toInt()) { index ->
         Preset(
             name = equalizer.getPresetName(index.toShort()),
@@ -139,9 +149,10 @@ class EqualizerControllerImpl @Inject constructor(
 
     private fun updateConfigurationState(
         enabled: Boolean = configuration.value.enabled,
+        loudnessEnhancerEnabled: Boolean = configuration.value.loudnessEnhancerEnabled,
         presets: List<Preset> = configuration.value.presets
     ) {
-        _configuration.value = configuration.value.copy(enabled = enabled, presets = presets)
+        _configuration.value = configuration.value.copy(enabled = enabled, loudnessEnhancerEnabled = loudnessEnhancerEnabled, presets = presets)
     }
 
     private fun Int.convertMiliherzToHerzFormatted() = (this / 1000).toString() + " Hz"

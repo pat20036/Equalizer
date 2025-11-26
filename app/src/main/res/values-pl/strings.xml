@@ -8,6 +8,7 @@
     <string name="bass_boost_section_title">Wzmocnienie basu</string>
     <string name="virtualizer_section_title">Wirtualizator</string>
     <string name="volume_section_title">Głośność urządzenia</string>
+    <string name="loudness_enhancer_checkbox_message">(Eksperymentalne) Spróbuj dostosować głośność muzyki po włączeniu korektora.</string>
 
     <!--Add new preset screen-->
     <string name="add_preset_screen_title">Dodaj nowy preset</string>

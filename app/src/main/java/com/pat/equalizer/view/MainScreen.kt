@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.PlaylistAddCircle
 import androidx.compose.material.icons.filled.SpatialAudio
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -85,6 +86,9 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
         },
         onVirtualizerStrengthLevelChanged = {
             mainViewModel.emitAction(MainAction.SetVirtualizerStrength(it))
+        },
+        onLoudnessEnhancerCheckboxStateChange = {
+            mainViewModel.emitAction(MainAction.EnhanceLoudness(it))
         })
 }
 
@@ -99,7 +103,8 @@ private fun MainScreen(
     onBassBoostSwitchChange: (Boolean) -> Unit = { },
     onBassBoostStrengthLevelChanged: (Int) -> Unit = { },
     onVirtualizerSwitchChange: (Boolean) -> Unit = { },
-    onVirtualizerStrengthLevelChanged: (Int) -> Unit = { }
+    onVirtualizerStrengthLevelChanged: (Int) -> Unit = { },
+    onLoudnessEnhancerCheckboxStateChange: (Boolean) -> Unit = { }
 ) {
     Scaffold(topBar = {
         ScreenTitleAppBar(text = stringResource(R.string.main_screen_title))
@@ -120,7 +125,9 @@ private fun MainScreen(
 
             EqualizerSwitch(
                 switchState = state.equalizer.switchState,
-                onEqualizerSwitchChange = onEqualizerSwitchChange
+                loudnessEnhancerState = state.equalizer.loudnessEnhancerCheckboxState,
+                onEqualizerSwitchChange = onEqualizerSwitchChange,
+                onLoudnessEnhancerCheckboxStateChange = onLoudnessEnhancerCheckboxStateChange
             )
 
             EqualizerSection(
@@ -184,7 +191,9 @@ fun UserVolumeSection(currentLevel: Float, maxLevel: Float, modifier: Modifier =
 @Composable
 private fun EqualizerSwitch(
     switchState: Boolean,
+    loudnessEnhancerState: Boolean,
     onEqualizerSwitchChange: (Boolean) -> Unit = { },
+    onLoudnessEnhancerCheckboxStateChange: (Boolean) -> Unit = { }
 ) {
     SectionColumn(modifier = Modifier.fillMaxWidth()) {
         SectionSwitch(
@@ -193,6 +202,16 @@ private fun EqualizerSwitch(
             checked = switchState,
             onSwitchStateChange = onEqualizerSwitchChange
         )
+
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Checkbox(checked = loudnessEnhancerState, { onLoudnessEnhancerCheckboxStateChange(it) })
+            Text(
+                text = stringResource(R.string.loudness_enhancer_checkbox_message),
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .align(Alignment.CenterVertically)
+            )
+        }
     }
 }
 

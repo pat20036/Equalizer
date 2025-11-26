@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.pat.equalizer.core"
+    namespace = "com.pat.loudness.core"
     compileSdk = 36
 
     defaultConfig {
@@ -34,7 +34,6 @@ android {
 dependencies {
     ksp(libs.hilt.android.compiler)
 
-    implementation(project(":loudness-core"))
     implementation(libs.bundles.androidx)
     implementation(libs.bundles.external)
     implementation(libs.bundles.hilt)

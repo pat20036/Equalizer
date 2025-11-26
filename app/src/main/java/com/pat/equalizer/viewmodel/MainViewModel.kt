@@ -19,7 +19,7 @@ class MainViewModel @Inject constructor(
     private val equalizerController: EqualizerController,
     private val bassBoostController: BassBoostController,
     private val virtualizerController: VirtualizerController,
-    private val volumeController: VolumeController
+    volumeController: VolumeController
 ) :
     StateViewModel<MainUiState, MainAction>() {
 
@@ -31,7 +31,15 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch {
             equalizerController.configuration.collectLatest {
-                updateState(state.value.copy(equalizer = state.value.equalizer.copy(presets = it.presets, switchState = it.enabled)))
+                updateState(
+                    state.value.copy(
+                        equalizer = state.value.equalizer.copy(
+                            presets = it.presets,
+                            loudnessEnhancerCheckboxState = it.loudnessEnhancerEnabled,
+                            switchState = it.enabled
+                        )
+                    )
+                )
             }
         }
 
@@ -100,6 +108,10 @@ class MainViewModel @Inject constructor(
                 is MainAction.SetVolumeLevel -> {
                     updateState(state.value.copy(volume = state.value.volume.copy(currentLevel = it.level)))
                 }
+
+                is MainAction.EnhanceLoudness -> viewModelScope.launch {
+                    equalizerController.changeLoudnessEnhancerState(it.enabled)
+                }
             }
         }
     }
@@ -114,7 +126,8 @@ data class MainUiState(
 
 data class EqualizerUiState(
     val presets: List<Preset> = emptyList(),
-    val switchState: Boolean = false
+    val switchState: Boolean = false,
+    val loudnessEnhancerCheckboxState: Boolean = false
 ) : BaseUiState
 
 data class BassBoostUiState(
@@ -144,4 +157,5 @@ sealed interface MainAction {
     data class SetVirtualizerSwitchState(val isChecked: Boolean) : MainAction
     data class SetVirtualizerStrength(val strength: Int) : MainAction
     data class SetVolumeLevel(val level: Int) : MainAction
+    data class EnhanceLoudness(val enabled: Boolean) : MainAction
 }
