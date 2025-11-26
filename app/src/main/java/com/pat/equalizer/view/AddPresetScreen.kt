@@ -1,5 +1,6 @@
 package com.pat.equalizer.view
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -23,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,7 +35,10 @@ import com.pat.equalizer.R
 import com.pat.equalizer.components.ScreenTitleAppBar
 import com.pat.equalizer.modifiers.defaultHorizontalPadding
 import com.pat.equalizer.viewmodel.AddPresetUiAction
+import com.pat.equalizer.viewmodel.AddPresetUiEvent
 import com.pat.equalizer.viewmodel.AddPresetViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -40,6 +46,21 @@ import kotlinx.coroutines.launch
 fun AddPresetScreen(navController: NavHostController) {
     val viewmodel = hiltViewModel<AddPresetViewModel>()
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewmodel.oneTimeEventsChannel.receiveAsFlow().collectLatest { event ->
+            when (event) {
+                is AddPresetUiEvent.Error -> {
+                    Toast.makeText(context, context.getString(R.string.validation_error_message), Toast.LENGTH_SHORT).show()
+                }
+
+                is AddPresetUiEvent.Success -> {
+                    navController.popBackStack()
+                }
+            }
+        }
+    }
 
     Scaffold(topBar = {
         ScreenTitleAppBar(text = stringResource(R.string.add_preset_screen_title), backAction = { navController.popBackStack() })
@@ -75,10 +96,6 @@ fun AddPresetScreen(navController: NavHostController) {
                     .height(ButtonDefaults.LargeContainerHeight)
                     .fillMaxWidth(), shapes = ButtonDefaults.shapes()
             ) { Text(stringResource(R.string.save_button_text)) }
-        }
-
-        if (viewmodel.getCurrentState().added) {
-            navController.popBackStack()
         }
     }
 }

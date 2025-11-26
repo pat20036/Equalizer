@@ -14,6 +14,7 @@
     <string name="add_preset_hint">Creating your own presets is easier than you think and is the best way to make your music or project truly sound like you. Instead of always relying on the sounds that come built-in, you can design your own unique tones.</string>
     <string name="preset_name_placeholder">Preset Name</string>
     <string name="save_button_text">Save</string>
+    <string name="validation_error_message">Preset name cannot be empty</string>
 
     <!--Services-->
     <string name="notification_channel_name">Equalizer Service</string>

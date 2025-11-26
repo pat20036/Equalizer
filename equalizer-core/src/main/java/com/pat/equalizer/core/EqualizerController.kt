@@ -18,7 +18,7 @@ interface EqualizerController {
     suspend fun changeState(enabled: Boolean)
     suspend fun usePreset(preset: Preset)
     suspend fun deletePreset(preset: Preset)
-    suspend fun addCustomPreset(name: String)
+    suspend fun addCustomPreset(name: String, onSuccess: (() -> Unit), onFailure: (() -> Unit))
     suspend fun onBandLevelChanged(preset: Preset, bandId: Int, level: Short)
 }
 
@@ -82,16 +82,22 @@ class EqualizerControllerImpl @Inject constructor(
         dataStore.deletePreset(preset)
     }
 
-    override suspend fun addCustomPreset(name: String) {
-        val preset = Preset(
-            name = name,
-            id = configuration.value.presets.lastIndex + 1,
-            bands = getBands(true),
-            isCustom = true
-        )
+    override suspend fun addCustomPreset(name: String, onSuccess: (() -> Unit), onFailure: (() -> Unit)) {
+        if (name.isNotBlank()) {
+            val preset = Preset(
+                name = name,
+                id = configuration.value.presets.lastIndex + 1,
+                bands = getBands(true),
+                isCustom = true
+            )
 
-        updateConfigurationState(presets = configuration.value.presets + preset)
-        dataStore.addPreset(preset)
+            updateConfigurationState(presets = configuration.value.presets + preset)
+            dataStore.addPreset(preset)
+            onSuccess()
+        } else {
+            onFailure()
+        }
+
     }
 
     override suspend fun onBandLevelChanged(preset: Preset, bandId: Int, level: Short) {
