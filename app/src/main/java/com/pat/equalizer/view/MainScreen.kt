@@ -116,7 +116,7 @@ private fun MainScreen(
                 .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            UserVolumeSection(state.volume.toFloat())
+            UserVolumeSection(state.volume.currentLevel.toFloat(), state.volume.maxLevel.toFloat())
 
             EqualizerSwitch(
                 switchState = state.equalizer.switchState,
@@ -147,11 +147,11 @@ private fun MainScreen(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun UserVolumeSection(level: Float, modifier: Modifier = Modifier) {
-    var sliderValue by remember { mutableFloatStateOf(level) }
+fun UserVolumeSection(currentLevel: Float, maxLevel: Float, modifier: Modifier = Modifier) {
+    var sliderValue by remember { mutableFloatStateOf(currentLevel) }
 
-    LaunchedEffect(level) {
-        sliderValue = level
+    LaunchedEffect(currentLevel) {
+        sliderValue = currentLevel
     }
 
     SectionColumn {
@@ -175,7 +175,7 @@ fun UserVolumeSection(level: Float, modifier: Modifier = Modifier) {
         Slider(
             value = sliderValue,
             onValueChange = { sliderValue = it },
-            valueRange = 0f..25f,
+            valueRange = 0f..maxLevel,
             enabled = false
         )
     }

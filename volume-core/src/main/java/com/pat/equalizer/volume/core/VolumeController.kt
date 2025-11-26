@@ -8,11 +8,17 @@ import javax.inject.Inject
 
 interface VolumeController {
     fun getCurrentVolumeLevel(): Int
+    fun getMaxVolumeLevel(): Int
 }
 
 class VolumeControllerImpl @Inject constructor(@param:ApplicationContext private val context: Context) : VolumeController {
     override fun getCurrentVolumeLevel(): Int {
         val audioManager = context.getSystemService(AUDIO_SERVICE) as AudioManager
         return audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+    }
+
+    override fun getMaxVolumeLevel(): Int {
+        val audioManager = context.getSystemService(AUDIO_SERVICE) as AudioManager
+        return audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
     }
 }

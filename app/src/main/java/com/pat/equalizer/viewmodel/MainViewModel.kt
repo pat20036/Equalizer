@@ -19,7 +19,7 @@ class MainViewModel @Inject constructor(
     private val equalizerController: EqualizerController,
     private val bassBoostController: BassBoostController,
     private val virtualizerController: VirtualizerController,
-    volumeController: VolumeController
+    private val volumeController: VolumeController
 ) :
     StateViewModel<MainUiState, MainAction>() {
 
@@ -27,7 +27,7 @@ class MainViewModel @Inject constructor(
 
     init {
 
-        updateState(state.value.copy(volume = volumeController.getCurrentVolumeLevel()))
+        updateState(state.value.copy(volume = state.value.volume.copy(currentLevel = volumeController.getCurrentVolumeLevel(), maxLevel = volumeController.getMaxVolumeLevel())))
 
         viewModelScope.launch {
             equalizerController.configuration.collectLatest {
@@ -98,7 +98,7 @@ class MainViewModel @Inject constructor(
                 }
 
                 is MainAction.SetVolumeLevel -> {
-                    updateState(state.value.copy(volume = it.level))
+                    updateState(state.value.copy(volume = state.value.volume.copy(currentLevel = it.level)))
                 }
             }
         }
@@ -109,7 +109,7 @@ data class MainUiState(
     val equalizer: EqualizerUiState = EqualizerUiState(),
     val bassBoost: BassBoostUiState = BassBoostUiState(),
     val virtualizer: VirtualizerUiState = VirtualizerUiState(),
-    val volume: Int = 0
+    val volume: VolumeUiState = VolumeUiState()
 ) : BaseUiState
 
 data class EqualizerUiState(
@@ -127,6 +127,11 @@ data class VirtualizerUiState(
     val strength: Int = 0,
     val switchState: Boolean = false,
     val range: IntRange = 0..1000 // According to Android docs, strength is between 0 and 1000 TODO get from config
+) : BaseUiState
+
+data class VolumeUiState(
+    val currentLevel: Int = 0,
+    val maxLevel: Int = 0
 ) : BaseUiState
 
 sealed interface MainAction {
