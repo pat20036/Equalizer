@@ -11,14 +11,14 @@
 
     <!--Add new preset screen-->
     <string name="add_preset_screen_title">Add New Preset</string>
-    <string name="add_preset_hint">Creating your own presets is easier than you think and is the best way to make your music or project truly sound like you. Instead of always relying on the sounds that come built-in, you can design your own unique tones.</string>
+    <string name="add_preset_hint">Instead of using built-in presets, add your own. Once added, you can customize everything to your own preferences and requirements.</string>
     <string name="preset_name_placeholder">Preset Name</string>
     <string name="save_button_text">Save</string>
     <string name="validation_error_message">Preset name cannot be empty</string>
 
     <!--Services-->
-    <string name="notification_channel_name">Equalizer Service</string>
+    <string name="notification_channel_name" translatable="false">Equalizer Service</string>
     <string name="notification_content_text">Equalizer is running</string>
-    <string name="notification_content_title">Equalizer</string>
+    <string name="notification_content_title" translatable="false">Equalizer</string>
 
 </resources>
