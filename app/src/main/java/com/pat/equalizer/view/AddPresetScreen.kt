@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.pat.equalizer.R
 import com.pat.equalizer.components.ScreenTitleAppBar
 import com.pat.equalizer.modifiers.defaultHorizontalPadding
@@ -41,12 +42,17 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AddPresetScreen(navController: NavHostController) {
     val viewmodel = hiltViewModel<AddPresetViewModel>()
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    AddPresetScreenContent(navController = navController, onClickSaveButton = {
+        coroutineScope.launch {
+            viewmodel.emitAction(AddPresetUiAction.AddCustomPreset(it))
+        }
+    })
 
     LaunchedEffect(Unit) {
         viewmodel.oneTimeEventsChannel.receiveAsFlow().collectLatest { event ->
@@ -61,6 +67,11 @@ fun AddPresetScreen(navController: NavHostController) {
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun AddPresetScreenContent(navController: NavHostController, onClickSaveButton: (name: String) -> Unit = {}) {
 
     Scaffold(topBar = {
         ScreenTitleAppBar(text = stringResource(R.string.add_preset_screen_title), backAction = { navController.popBackStack() })
@@ -89,9 +100,7 @@ fun AddPresetScreen(navController: NavHostController) {
             )
             Button(
                 onClick = {
-                    coroutineScope.launch {
-                        viewmodel.emitAction(AddPresetUiAction.AddCustomPreset(text))
-                    }
+                    onClickSaveButton(text)
                 }, modifier = Modifier
                     .height(ButtonDefaults.LargeContainerHeight)
                     .fillMaxWidth(), shapes = ButtonDefaults.shapes()
@@ -103,5 +112,5 @@ fun AddPresetScreen(navController: NavHostController) {
 @Preview
 @Composable
 private fun AddPresetScreenPreview() {
-
+    AddPresetScreenContent(rememberNavController())
 }
