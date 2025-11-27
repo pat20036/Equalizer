@@ -36,7 +36,7 @@ class MainViewModel @Inject constructor(
                         equalizer = state.value.equalizer.copy(
                             presets = it.presets,
                             loudnessEnhancerCheckboxState = it.loudnessEnhancerEnabled,
-                            switchState = it.enabled
+                            switchState = it.equalizerEnabled
                         )
                     )
                 )
