@@ -18,6 +18,6 @@
     <string name="validation_error_message">Nazwa presetu nie może być pusta</string>
 
     <!--Services-->
-    <string name="notification_content_text">Equalizer działa w tle</string>
+    <string name="notification_content_text">Kliknij, aby otworzyć.</string>
 
 </resources>

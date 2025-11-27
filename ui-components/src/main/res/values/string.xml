@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_permission_rationale_dialog_title">Notifications</string>
+    <string name="notification_permission_rationale_dialog_message">To ensure the equalizer works properly, the app needs permission to send notifications.</string>
+    <string name="notification_permission_rationale_dialog_positive_button">Try again</string>
+    <string name="notification_permission_rationale_dialog_negative_button">Cancel</string>
+    <string name="notification_permission_dismissed_dialog_title">Turn on notifications in settings</string>
+    <string name="notification_permission_dismissed_dialog_message">It appears that notifications have been permanently disabled. You can manually enable them in the app settings.</string>
+    <string name="notification_permission_dismissed_dialog_positive_button">Go to settings</string>
+</resources>

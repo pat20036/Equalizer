@@ -19,7 +19,7 @@
 
     <!--Services-->
     <string name="notification_channel_name" translatable="false">Equalizer Service</string>
-    <string name="notification_content_text">Equalizer is running</string>
+    <string name="notification_content_text">Tap to open.</string>
     <string name="notification_content_title" translatable="false">Equalizer</string>
 
 </resources>

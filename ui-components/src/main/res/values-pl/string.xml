@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_permission_rationale_dialog_title">Powiadomienia</string>
+    <string name="notification_permission_rationale_dialog_message">Aby zapewnić prawidłowe działanie korektora, aplikacja potrzebuje pozwolenia na wysyłanie powiadomień.</string>
+    <string name="notification_permission_rationale_dialog_positive_button">Spróbuj ponownie</string>
+    <string name="notification_permission_rationale_dialog_negative_button">Anuluj</string>
+    <string name="notification_permission_dismissed_dialog_title">Włącz powiadomienia w ustawieniach</string>
+    <string name="notification_permission_dismissed_dialog_message">Wygląda na to, że zablokowano powiadomienia na stałe. Możesz włączyć je ręcznie w ustawieniach aplikacji.</string>
+    <string name="notification_permission_dismissed_dialog_positive_button">Przejdź do ustawień</string>
+</resources>

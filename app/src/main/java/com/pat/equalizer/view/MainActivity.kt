@@ -1,7 +1,10 @@
 package com.pat.equalizer.view
 
+import NotificationPermissionRequester
+import android.Manifest
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +28,17 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             EqualizerTheme {
+
+                NotificationPermissionRequester(
+                    shouldShowRationale = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) else false
+                    },
+                    onPermissionGranted = {
+                        restartService()
+                    }
+                )
+
                 val viewModel = hiltViewModel<MainViewModel>()
 
                 registerVolumeReceiver { level ->
@@ -49,6 +63,11 @@ class MainActivity : ComponentActivity() {
 
     private fun startService() {
         ContextCompat.startForegroundService(this, Intent(this, EqualizerService::class.java))
+    }
+
+    private fun restartService() {
+        stopService(Intent(this, EqualizerService::class.java))
+        startService()
     }
 
     companion object {
