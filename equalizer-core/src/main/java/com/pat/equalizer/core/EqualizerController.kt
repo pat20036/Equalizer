@@ -19,7 +19,7 @@ interface EqualizerController {
     suspend fun changeState(enabled: Boolean)
     suspend fun usePreset(preset: Preset)
     suspend fun deletePreset(preset: Preset)
-    suspend fun addCustomPreset(name: String, onSuccess: suspend ((Int) -> Unit), onFailure: (() -> Unit))
+    suspend fun addCustomPreset(name: String, onSuccess: () -> Unit, onFailure: (() -> Unit))
     suspend fun onBandLevelChanged(preset: Preset, bandId: Int, level: Short)
     suspend fun changeLoudnessEnhancerState(enabled: Boolean)
 }
@@ -86,7 +86,7 @@ class EqualizerControllerImpl @Inject constructor(
         dataStore.deletePreset(preset)
     }
 
-    override suspend fun addCustomPreset(name: String, onSuccess: suspend ((Int) -> Unit), onFailure: (() -> Unit)) {
+    override suspend fun addCustomPreset(name: String, onSuccess: () -> Unit, onFailure: (() -> Unit)) {
         if (name.isNotBlank()) {
             val id = configuration.value.presets.lastIndex + 1
             val preset = Preset(
@@ -98,7 +98,8 @@ class EqualizerControllerImpl @Inject constructor(
 
             updateConfigurationState(presets = configuration.value.presets + preset)
             dataStore.addPreset(preset)
-            onSuccess(id)
+            usePreset(preset)
+            onSuccess()
         } else {
             onFailure()
         }

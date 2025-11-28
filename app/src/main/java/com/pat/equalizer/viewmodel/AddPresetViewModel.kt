@@ -22,11 +22,8 @@ class AddPresetViewModel @Inject constructor(private val equalizerController: Eq
             when (it) {
                 is AddPresetUiAction.AddCustomPreset -> {
                     viewModelScope.launch {
-                        equalizerController.addCustomPreset(it.name, onSuccess = { addedPresetId ->
-                            equalizerController.configuration.value.presets.firstOrNull { it.id == addedPresetId }?.let { preset ->
-                                equalizerController.usePreset(preset)
-                            }
-                            oneTimeEventsChannel.trySend(AddPresetUiEvent.Success(addedPresetId = addedPresetId))
+                        equalizerController.addCustomPreset(it.name, onSuccess = {
+                            oneTimeEventsChannel.trySend(AddPresetUiEvent.Success)
                         }, onFailure = {
                             oneTimeEventsChannel.trySend(AddPresetUiEvent.Error)
                         })
@@ -38,7 +35,7 @@ class AddPresetViewModel @Inject constructor(private val equalizerController: Eq
 }
 
 sealed interface AddPresetUiEvent {
-    data class Success(val addedPresetId: Int) : AddPresetUiEvent
+    data object Success : AddPresetUiEvent
     data object Error : AddPresetUiEvent
 }
 
