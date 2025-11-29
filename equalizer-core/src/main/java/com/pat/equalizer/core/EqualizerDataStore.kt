@@ -35,7 +35,7 @@ class EqualizerDataStore @Inject constructor(
     fun getConfiguration(): Flow<EqualizerConfiguration> =
         context.dataStore.data.map { preferences ->
             val enabled = preferences[enabledKey] ?: false
-            val loudnessEnhancerEnabled = preferences[loudnessEnhancerEnabled] ?: false
+            val loudnessEnhancerEnabled = preferences[loudnessEnhancerEnabled] ?: true
             val presets = preferences[presetsKey]?.let { json ->
                 gson.fromJson(json, Array<Preset>::class.java)?.toList() ?: emptyList()
             } ?: emptyList()
@@ -88,6 +88,6 @@ class EqualizerDataStore @Inject constructor(
 
 data class EqualizerConfiguration(
     var equalizerEnabled: Boolean = false,
-    var loudnessEnhancerEnabled: Boolean = false,
+    var loudnessEnhancerEnabled: Boolean = true,
     var presets: List<Preset> = emptyList()
 )

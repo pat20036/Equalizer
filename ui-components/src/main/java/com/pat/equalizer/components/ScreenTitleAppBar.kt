@@ -1,5 +1,6 @@
 package com.pat.equalizer.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,7 +15,12 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenTitleAppBar(text: String, modifier: Modifier = Modifier, backAction: (() -> Unit)? = null) {
+fun ScreenTitleAppBar(
+    text: String,
+    modifier: Modifier = Modifier,
+    backAction: (() -> Unit)? = null,
+    actions: @Composable (RowScope.() -> Unit) = {}
+) {
     TopAppBar(title = {
         Text(text = text, style = MaterialTheme.typography.headlineLarge, modifier = modifier)
     }, navigationIcon = {
@@ -23,7 +29,7 @@ fun ScreenTitleAppBar(text: String, modifier: Modifier = Modifier, backAction: (
                 Icon(imageVector = Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
             }
         }
-    })
+    }, actions = actions)
 }
 
 @Preview(showBackground = true)

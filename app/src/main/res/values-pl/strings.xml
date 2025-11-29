@@ -20,4 +20,9 @@
     <!--Services-->
     <string name="notification_content_text">Kliknij, aby otworzyć.</string>
 
+    <!--Settings Screen-->
+    <string name="settings_screen_title">Ustawienia</string>
+    <string name="loudness_enhancer_setting_title">Dostosuj głośność po włączeniu korektora</string>
+    <string name="loudness_enhancer_setting_description">Jeśli masz problemy z głośnością, wyłącz tę funkcję.</string>
+
 </resources>

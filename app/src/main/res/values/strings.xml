@@ -22,4 +22,9 @@
     <string name="notification_content_text">Tap to open.</string>
     <string name="notification_content_title" translatable="false">Equalizer</string>
 
+    <!--Settings Screen-->
+    <string name="settings_screen_title">Settings</string>
+    <string name="loudness_enhancer_setting_title">Adjust the volume after turning on the equalizer</string>
+    <string name="loudness_enhancer_setting_description">If you have problems with the volume disable this function.</string>
+
 </resources>

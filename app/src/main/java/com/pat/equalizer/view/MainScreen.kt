@@ -15,11 +15,12 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.PlaylistAddCircle
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SpatialAudio
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
@@ -94,9 +95,6 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel, a
         },
         onVirtualizerStrengthLevelChanged = {
             mainViewModel.emitAction(MainAction.SetVirtualizerStrength(it))
-        },
-        onLoudnessEnhancerCheckboxStateChange = {
-            mainViewModel.emitAction(MainAction.EnhanceLoudness(it))
         })
 }
 
@@ -111,11 +109,14 @@ private fun MainScreen(
     onBassBoostSwitchChange: (Boolean) -> Unit = { },
     onBassBoostStrengthLevelChanged: (Int) -> Unit = { },
     onVirtualizerSwitchChange: (Boolean) -> Unit = { },
-    onVirtualizerStrengthLevelChanged: (Int) -> Unit = { },
-    onLoudnessEnhancerCheckboxStateChange: (Boolean) -> Unit = { }
+    onVirtualizerStrengthLevelChanged: (Int) -> Unit = { }
 ) {
     Scaffold(topBar = {
-        ScreenTitleAppBar(text = stringResource(R.string.main_screen_title))
+        ScreenTitleAppBar(text = stringResource(R.string.main_screen_title), actions = {
+            IconButton(onClick = { navController.navigate(EqualizerScreen.Settings.route) }) {
+                Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+            }
+        })
     }, floatingActionButton = {
         FloatingActionButton(onClick = { navController.navigate(EqualizerScreen.AddNewPreset.route) }) {
             Icon(imageVector = Icons.Default.PlaylistAddCircle, contentDescription = null)
@@ -133,9 +134,7 @@ private fun MainScreen(
 
             EqualizerSwitch(
                 switchState = state.equalizer.switchState,
-                loudnessEnhancerState = state.equalizer.loudnessEnhancerCheckboxState,
                 onEqualizerSwitchChange = onEqualizerSwitchChange,
-                onLoudnessEnhancerCheckboxStateChange = onLoudnessEnhancerCheckboxStateChange
             )
 
             EqualizerSection(
@@ -199,9 +198,7 @@ fun UserVolumeSection(currentLevel: Float, maxLevel: Float, modifier: Modifier =
 @Composable
 private fun EqualizerSwitch(
     switchState: Boolean,
-    loudnessEnhancerState: Boolean,
     onEqualizerSwitchChange: (Boolean) -> Unit = { },
-    onLoudnessEnhancerCheckboxStateChange: (Boolean) -> Unit = { }
 ) {
     SectionColumn(modifier = Modifier.fillMaxWidth()) {
         SectionSwitch(
@@ -210,16 +207,6 @@ private fun EqualizerSwitch(
             checked = switchState,
             onSwitchStateChange = onEqualizerSwitchChange
         )
-
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Checkbox(checked = loudnessEnhancerState, { onLoudnessEnhancerCheckboxStateChange(it) })
-            Text(
-                text = stringResource(R.string.loudness_enhancer_checkbox_message),
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .align(Alignment.CenterVertically)
-            )
-        }
     }
 }
 

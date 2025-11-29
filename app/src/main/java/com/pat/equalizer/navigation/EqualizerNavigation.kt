@@ -11,6 +11,7 @@ import com.pat.equalizer.core.model.Preset
 import com.pat.equalizer.view.AddPresetScreen
 import com.pat.equalizer.view.AddPresetScreenBackStackKey.ADDED_PRESET_ID_KEY
 import com.pat.equalizer.view.MainScreen
+import com.pat.equalizer.view.SettingsScreen
 import com.pat.equalizer.viewmodel.MainViewModel
 import kotlinx.serialization.Serializable
 
@@ -38,6 +39,10 @@ fun EqualizerNavHost(navController: NavHostController, mainViewModel: MainViewMo
         composable(EqualizerScreen.AddNewPreset.route) {
             AddPresetScreen(navController = navController)
         }
+
+        composable(EqualizerScreen.Settings.route) {
+            SettingsScreen(navController = navController)
+        }
     }
 }
 
@@ -48,4 +53,7 @@ sealed class EqualizerScreen(val route: String) {
 
     @Serializable
     data object AddNewPreset : EqualizerScreen("addNewPreset")
+
+    @Serializable
+    data object Settings : EqualizerScreen("settings")
 }
