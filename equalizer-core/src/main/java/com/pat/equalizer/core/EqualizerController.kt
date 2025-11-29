@@ -81,9 +81,11 @@ class EqualizerControllerImpl @Inject constructor(
     }
 
     override suspend fun deletePreset(preset: Preset) {
-        updateConfigurationState(presets = configuration.value.presets - preset)
-        usePreset(configuration.value.presets.first())
-        dataStore.deletePreset(preset)
+        if (preset.isCustom) {
+            updateConfigurationState(presets = configuration.value.presets - preset)
+            usePreset(configuration.value.presets.first())
+            dataStore.deletePreset(preset)
+        }
     }
 
     override suspend fun addCustomPreset(name: String, onSuccess: suspend ((Preset) -> Unit), onFailure: (() -> Unit)) {
