@@ -58,7 +58,7 @@ class EqualizerService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentText(getString(R.string.notification_content_text))
             .setContentTitle(getString(R.string.notification_content_title))
-            .setSmallIcon(android.R.drawable.ic_media_play)
+            .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
