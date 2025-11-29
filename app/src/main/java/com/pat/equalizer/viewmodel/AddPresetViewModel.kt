@@ -2,6 +2,7 @@ package com.pat.equalizer.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.pat.equalizer.core.EqualizerController
+import com.pat.equalizer.core.model.Preset
 import com.pat.equalizer.viewmodel.extensions.BaseUiState
 import com.pat.equalizer.viewmodel.extensions.StateViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,8 +23,8 @@ class AddPresetViewModel @Inject constructor(private val equalizerController: Eq
             when (it) {
                 is AddPresetUiAction.AddCustomPreset -> {
                     viewModelScope.launch {
-                        equalizerController.addCustomPreset(it.name, onSuccess = {
-                            oneTimeEventsChannel.trySend(AddPresetUiEvent.Success)
+                        equalizerController.addCustomPreset(it.name, onSuccess = { addedPreset ->
+                            oneTimeEventsChannel.trySend(AddPresetUiEvent.Success(addedPreset = addedPreset))
                         }, onFailure = {
                             oneTimeEventsChannel.trySend(AddPresetUiEvent.Error)
                         })
@@ -35,7 +36,7 @@ class AddPresetViewModel @Inject constructor(private val equalizerController: Eq
 }
 
 sealed interface AddPresetUiEvent {
-    data object Success : AddPresetUiEvent
+    data class Success(val addedPreset: Preset) : AddPresetUiEvent
     data object Error : AddPresetUiEvent
 }
 

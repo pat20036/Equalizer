@@ -35,6 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import com.pat.equalizer.R
 import com.pat.equalizer.components.ScreenTitleAppBar
 import com.pat.equalizer.modifiers.defaultHorizontalPadding
+import com.pat.equalizer.view.AddPresetScreenBackStackKey.ADDED_PRESET_ID_KEY
 import com.pat.equalizer.viewmodel.AddPresetUiAction
 import com.pat.equalizer.viewmodel.AddPresetUiEvent
 import com.pat.equalizer.viewmodel.AddPresetViewModel
@@ -62,6 +63,7 @@ fun AddPresetScreen(navController: NavHostController) {
                 }
 
                 is AddPresetUiEvent.Success -> {
+                    navController.previousBackStackEntry?.savedStateHandle?.set(ADDED_PRESET_ID_KEY, event.addedPreset)
                     navController.popBackStack()
                 }
             }
@@ -107,6 +109,10 @@ fun AddPresetScreenContent(navController: NavHostController, onClickSaveButton: 
             ) { Text(stringResource(R.string.save_button_text)) }
         }
     }
+}
+
+object AddPresetScreenBackStackKey {
+    const val ADDED_PRESET_ID_KEY = "addedPreset"
 }
 
 @Preview

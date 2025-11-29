@@ -59,9 +59,17 @@ import com.pat.equalizer.viewmodel.MainViewModel
 import com.pat.equalizer.viewmodel.VirtualizerUiState
 
 @Composable
-fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
+fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel, addedPreset: Preset? = null) {
+    val state = mainViewModel.getCurrentState()
+
+    LaunchedEffect(addedPreset) {
+        addedPreset?.let {
+            mainViewModel.emitAction(MainAction.UsePreset(it))
+        }
+    }
+
     MainScreen(
-        state = mainViewModel.getCurrentState(),
+        state = state,
         navController = navController,
         onPresetClick = { id ->
             mainViewModel.emitAction(MainAction.UsePreset(id))
