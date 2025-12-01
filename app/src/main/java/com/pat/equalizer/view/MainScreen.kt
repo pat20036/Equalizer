@@ -183,7 +183,7 @@ fun UserVolumeSection(currentLevel: Float, maxLevel: Float, modifier: Modifier =
                     contentDescription = null
                 )
             }
-            Text(text = stringResource(R.string.volume_section_title))
+            Text(text = stringResource(R.string.volume_section_title), style = MaterialTheme.typography.titleMedium)
         }
 
         Slider(

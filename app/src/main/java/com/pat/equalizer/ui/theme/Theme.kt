@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import com.pat.equalizer.R
 
 private val DarkColorScheme = darkColorScheme(
@@ -41,18 +42,31 @@ private val LightColorScheme = lightColorScheme(
 //TODO Temporary
 
 private val CustomFontFamily = FontFamily(
-    Font(R.font.montserrat_regular)
+    Font(R.font.montserrat_regular, FontWeight.Normal),
+    Font(R.font.montserrat_bold, FontWeight.Bold)
 )
 
 private val CustomTypography = Typography(
     bodyLarge = TextStyle(
         fontFamily = CustomFontFamily,
+        fontWeight = FontWeight.Normal
     ),
     bodyMedium = TextStyle(
         fontFamily = CustomFontFamily,
+        fontWeight = FontWeight.Normal
     ),
     bodySmall = TextStyle(
         fontFamily = CustomFontFamily,
+        fontWeight = FontWeight.Normal
+    ),
+    titleLarge = TextStyle(
+        fontFamily = CustomFontFamily, fontWeight = FontWeight.Bold
+    ),
+    titleMedium = TextStyle(
+        fontFamily = CustomFontFamily, fontWeight = FontWeight.Bold
+    ),
+    titleSmall = TextStyle(
+        fontFamily = CustomFontFamily, fontWeight = FontWeight.Bold
     )
 )
 

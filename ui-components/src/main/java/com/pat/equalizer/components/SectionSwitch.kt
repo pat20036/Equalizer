@@ -42,7 +42,7 @@ fun SectionSwitch(text: String, icon: ImageVector, checked: Boolean, onSwitchSta
             )
         }
 
-        Text(text = text)
+        Text(text = text, style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.width(8.dp))
         Switch(checked = checked, onCheckedChange = {
             onSwitchStateChange(it)

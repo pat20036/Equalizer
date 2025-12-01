@@ -1,6 +1,7 @@
 package com.pat.equalizer.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +19,7 @@ fun EqualizerSlider(
     onValueChangeFinished: () -> Unit,
 ) {
     Column(modifier = modifier) {
-        Text(topText)
+        Text(text = topText, style = MaterialTheme.typography.titleSmall)
         Slider(
             value = value,
             onValueChange = onValueChange,
