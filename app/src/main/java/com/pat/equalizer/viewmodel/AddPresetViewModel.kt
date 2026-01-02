@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddPresetViewModel @Inject constructor(private val equalizerController: EqualizerController) : StateViewModel<BaseUiState, AddPresetUiAction>() {
 
-    override val state: MutableStateFlow<BaseUiState> = MutableStateFlow(object : BaseUiState {})
+    override val state: MutableStateFlow<BaseUiState> = createEmptyState()
 
     val oneTimeEventsChannel = Channel<AddPresetUiEvent>()
 

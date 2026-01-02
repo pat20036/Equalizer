@@ -15,7 +15,6 @@
             <option value="$PROJECT_DIR$/equalizer-core" />
             <option value="$PROJECT_DIR$/loudness-core" />
             <option value="$PROJECT_DIR$/ui-components" />
-            <option value="$PROJECT_DIR$/viewmodel-extensions" />
             <option value="$PROJECT_DIR$/virtualizer-core" />
             <option value="$PROJECT_DIR$/volume-core" />
           </set>

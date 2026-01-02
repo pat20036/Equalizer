@@ -87,7 +87,7 @@ class EqualizerDataStore @Inject constructor(
 }
 
 data class EqualizerConfiguration(
-    var equalizerEnabled: Boolean = false,
-    var loudnessEnhancerEnabled: Boolean = true,
-    var presets: List<Preset> = emptyList()
+    val equalizerEnabled: Boolean = false,
+    val loudnessEnhancerEnabled: Boolean = true,
+    val presets: List<Preset> = emptyList()
 )

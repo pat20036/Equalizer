@@ -63,8 +63,10 @@ fun AddPresetScreen(navController: NavHostController) {
                 }
 
                 is AddPresetUiEvent.Success -> {
-                    navController.previousBackStackEntry?.savedStateHandle?.set(ADDED_PRESET_ID_KEY, event.addedPreset)
-                    navController.popBackStack()
+                    with(navController) {
+                        previousBackStackEntry?.savedStateHandle?.set(ADDED_PRESET_ID_KEY, event.addedPreset)
+                        popBackStack()
+                    }
                 }
             }
         }
@@ -73,10 +75,14 @@ fun AddPresetScreen(navController: NavHostController) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun AddPresetScreenContent(navController: NavHostController, onClickSaveButton: (name: String) -> Unit = {}) {
-
+fun AddPresetScreenContent(
+    navController: NavHostController,
+    onClickSaveButton: (name: String) -> Unit = {}
+) {
     Scaffold(topBar = {
-        ScreenTitleAppBar(text = stringResource(R.string.add_preset_screen_title), backAction = { navController.popBackStack() })
+        ScreenTitleAppBar(
+            text = stringResource(R.string.add_preset_screen_title),
+            backAction = { navController.popBackStack() })
     }) { paddingValues ->
         Column(
             modifier = Modifier
@@ -89,7 +95,8 @@ fun AddPresetScreenContent(navController: NavHostController, onClickSaveButton: 
             var text by rememberSaveable { mutableStateOf("") }
 
             Text(
-                text = stringResource(R.string.add_preset_hint), style = MaterialTheme.typography.bodySmall
+                text = stringResource(R.string.add_preset_hint),
+                style = MaterialTheme.typography.bodySmall
             )
 
             LoadingIndicator(modifier = Modifier.size(196.dp))

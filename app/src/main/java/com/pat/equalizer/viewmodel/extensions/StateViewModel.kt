@@ -42,4 +42,8 @@ abstract class StateViewModel<STATE_TYPE : BaseUiState, ACTION_TYPE> : ViewModel
             }
         }
     }
+
+    fun createEmptyState(): MutableStateFlow<BaseUiState> {
+        return MutableStateFlow(object : BaseUiState { })
+    }
 }

@@ -4,6 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.pat.equalizer.bassboost.core.BassBoostController
 import com.pat.equalizer.core.EqualizerController
 import com.pat.equalizer.core.model.Preset
+import com.pat.equalizer.utils.Constants.VALUE_MAX_RANGE
+import com.pat.equalizer.utils.Constants.VALUE_MIN_RANGE
 import com.pat.equalizer.viewmodel.extensions.BaseUiState
 import com.pat.equalizer.viewmodel.extensions.StateViewModel
 import com.pat.equalizer.virtualizer.core.VirtualizerController
@@ -133,13 +135,13 @@ data class EqualizerUiState(
 data class BassBoostUiState(
     val strength: Int = 0,
     val switchState: Boolean = false,
-    val range: IntRange = 0..1000 // According to Android docs, strength is between 0 and 1000 TODO get from config
+    val range: IntRange = VALUE_MIN_RANGE..VALUE_MAX_RANGE
 ) : BaseUiState
 
 data class VirtualizerUiState(
     val strength: Int = 0,
     val switchState: Boolean = false,
-    val range: IntRange = 0..1000 // According to Android docs, strength is between 0 and 1000 TODO get from config
+    val range: IntRange = VALUE_MIN_RANGE..VALUE_MAX_RANGE
 ) : BaseUiState
 
 data class VolumeUiState(

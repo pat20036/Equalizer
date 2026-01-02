@@ -44,7 +44,6 @@ dependencies {
     implementation(project(":bassboost-core"))
     implementation(project(":equalizer-core"))
     implementation(project(":ui-components"))
-    implementation(project(":viewmodel-extensions"))
     implementation(project(":virtualizer-core"))
     implementation(project(":volume-core"))
 
