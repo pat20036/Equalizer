@@ -38,7 +38,7 @@ class MainViewModel @Inject constructor(
                         equalizer = state.value.equalizer.copy(
                             presets = it.presets,
                             loudnessEnhancerCheckboxState = it.loudnessEnhancerEnabled,
-                            switchState = it.equalizerEnabled
+                            switchState = it.enabled
                         )
                     )
                 )
@@ -111,7 +111,7 @@ class MainViewModel @Inject constructor(
                     updateState(state.value.copy(volume = state.value.volume.copy(currentLevel = it.level)))
                 }
 
-                is MainAction.EnhanceLoudness -> viewModelScope.launch {
+                is MainAction.SetEnhanceLoudness -> viewModelScope.launch {
                     equalizerController.changeLoudnessEnhancerState(it.enabled)
                 }
             }
@@ -159,5 +159,5 @@ sealed interface MainAction {
     data class SetVirtualizerSwitchState(val isChecked: Boolean) : MainAction
     data class SetVirtualizerStrength(val strength: Int) : MainAction
     data class SetVolumeLevel(val level: Int) : MainAction
-    data class EnhanceLoudness(val enabled: Boolean) : MainAction
+    data class SetEnhanceLoudness(val enabled: Boolean) : MainAction
 }

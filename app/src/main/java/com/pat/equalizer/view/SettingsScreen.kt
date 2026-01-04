@@ -30,7 +30,7 @@ fun SettingsScreen(navController: NavHostController) {
         navController = navController,
         loudnessEnhancerState = state.equalizer.loudnessEnhancerCheckboxState,
         onChangeLoudnessSetting = {
-            mainViewModel.emitAction(MainAction.EnhanceLoudness(it))
+            mainViewModel.emitAction(MainAction.SetEnhanceLoudness(it))
         })
 }
 

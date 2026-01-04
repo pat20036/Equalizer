@@ -46,8 +46,8 @@ class EqualizerControllerImpl @Inject constructor(
             _configuration.value = dataStore.getConfiguration().first()
 
             configuration.collectLatest {
-                equalizer.enabled = it.equalizerEnabled
-                loudnessController.setEnabled(it.loudnessEnhancerEnabled && it.equalizerEnabled)
+                equalizer.enabled = it.enabled
+                loudnessController.setEnabled(it.loudnessEnhancerEnabled && it.enabled)
 
                 if (isFirstLaunch) {
                     isFirstLaunch = false
@@ -126,7 +126,7 @@ class EqualizerControllerImpl @Inject constructor(
     }
 
     override suspend fun changeLoudnessEnhancerState(enabled: Boolean) {
-        loudnessController.setEnabled(enabled && configuration.value.equalizerEnabled)
+        loudnessController.setEnabled(enabled && configuration.value.enabled)
         updateConfigurationState(loudnessEnhancerEnabled = enabled)
         dataStore.updateConfiguration(configuration.value)
     }
@@ -151,11 +151,11 @@ class EqualizerControllerImpl @Inject constructor(
     }
 
     private fun updateConfigurationState(
-        enabled: Boolean = configuration.value.equalizerEnabled,
+        enabled: Boolean = configuration.value.enabled,
         loudnessEnhancerEnabled: Boolean = configuration.value.loudnessEnhancerEnabled,
         presets: List<Preset> = configuration.value.presets
     ) {
-        _configuration.value = configuration.value.copy(equalizerEnabled = enabled, loudnessEnhancerEnabled = loudnessEnhancerEnabled, presets = presets)
+        _configuration.value = configuration.value.copy(enabled = enabled, loudnessEnhancerEnabled = loudnessEnhancerEnabled, presets = presets)
     }
 
     private fun Int.convertMiliherzToHerzFormatted() = (this / 1000).toString() + " Hz"

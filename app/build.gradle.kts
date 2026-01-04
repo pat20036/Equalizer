@@ -60,6 +60,8 @@ dependencies {
     androidTestImplementation(libs.bundles.compose)
 
     testImplementation(libs.bundles.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.kotlin)
 
     debugImplementation(libs.bundles.composeDebug)
 }
