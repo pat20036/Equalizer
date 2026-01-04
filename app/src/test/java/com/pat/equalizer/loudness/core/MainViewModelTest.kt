@@ -35,9 +35,17 @@ class MainViewModelTest {
     private var virtualizerController = mock<VirtualizerController> { on { configuration } doReturn MutableStateFlow(VirtualizerConfiguration()) }
     private var volumeController = mock<VolumeController>()
 
+    private lateinit var viewModel: MainViewModel
+
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        viewModel = MainViewModel(
+            equalizerController = equalizerController,
+            bassBoostController = bassBoostController,
+            virtualizerController = virtualizerController,
+            volumeController = volumeController
+        )
     }
 
     @After
@@ -49,13 +57,6 @@ class MainViewModelTest {
     fun `should update selected preset when UsePreset action is emitted`() {
         val preset1 = Preset(id = 1, name = "Preset 1", bands = listOf())
         val preset2 = Preset(id = 2, name = "Preset 2", bands = listOf())
-
-        val viewModel = MainViewModel(
-            equalizerController = equalizerController,
-            bassBoostController = bassBoostController,
-            virtualizerController = virtualizerController,
-            volumeController = volumeController
-        )
 
         val newConfigurationState = MutableStateFlow(
             EqualizerConfiguration(
@@ -86,13 +87,6 @@ class MainViewModelTest {
         )
 
         whenever(equalizerController.configuration).thenReturn(configurationState)
-
-        val viewModel = MainViewModel(
-            equalizerController = equalizerController,
-            bassBoostController = bassBoostController,
-            virtualizerController = virtualizerController,
-            volumeController = volumeController
-        )
 
         viewModel.state.value = MainUiState(
             equalizer = EqualizerUiState(
@@ -127,13 +121,6 @@ class MainViewModelTest {
             selected = true
         )
 
-        val viewModel = MainViewModel(
-            equalizerController = equalizerController,
-            bassBoostController = bassBoostController,
-            virtualizerController = virtualizerController,
-            volumeController = volumeController
-        )
-
         viewModel.state.value = MainUiState(
             equalizer = EqualizerUiState(
                 presets = listOf(preset)
@@ -166,15 +153,7 @@ class MainViewModelTest {
     @Test
     fun `should update switchState when SetEqualizerSwitchState action is emitted`() {
         val configurationState = MutableStateFlow(EqualizerConfiguration(enabled = true))
-        equalizerController = mock<EqualizerController>()
         whenever(equalizerController.configuration).thenReturn(configurationState)
-
-        val viewModel = MainViewModel(
-            equalizerController = equalizerController,
-            bassBoostController = bassBoostController,
-            virtualizerController = virtualizerController,
-            volumeController = volumeController
-        )
 
         viewModel.emitAction(MainAction.SetEqualizerSwitchState(true))
         testDispatcher.scheduler.advanceUntilIdle()
@@ -185,13 +164,6 @@ class MainViewModelTest {
     fun `should update switchState when SetBassBoostSwitchState action is emitted`() {
         val configurationState = MutableStateFlow(BassBoostConfiguration(enabled = true))
         whenever(bassBoostController.configuration).thenReturn(configurationState)
-
-        val viewModel = MainViewModel(
-            equalizerController = equalizerController,
-            bassBoostController = bassBoostController,
-            virtualizerController = virtualizerController,
-            volumeController = volumeController
-        )
 
         viewModel.emitAction(MainAction.SetEqualizerSwitchState(true))
         testDispatcher.scheduler.advanceUntilIdle()
@@ -204,13 +176,6 @@ class MainViewModelTest {
         val configurationState = MutableStateFlow(BassBoostConfiguration(enabled = true, strength = strength))
         whenever(bassBoostController.configuration).thenReturn(configurationState)
 
-        val viewModel = MainViewModel(
-            equalizerController = equalizerController,
-            bassBoostController = bassBoostController,
-            virtualizerController = virtualizerController,
-            volumeController = volumeController
-        )
-
         viewModel.emitAction(MainAction.SetBassBoostStrength(strength))
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(strength, viewModel.state.value.bassBoost.strength)
@@ -221,13 +186,6 @@ class MainViewModelTest {
         val enabled = true
         val configurationState = MutableStateFlow(VirtualizerConfiguration(enabled = enabled))
         whenever(virtualizerController.configuration).thenReturn(configurationState)
-
-        val viewModel = MainViewModel(
-            equalizerController = equalizerController,
-            bassBoostController = bassBoostController,
-            virtualizerController = virtualizerController,
-            volumeController = volumeController
-        )
 
         viewModel.emitAction(MainAction.SetVirtualizerSwitchState(enabled))
         testDispatcher.scheduler.advanceUntilIdle()
@@ -240,13 +198,6 @@ class MainViewModelTest {
         val configurationState = MutableStateFlow(VirtualizerConfiguration(strength = strength))
         whenever(virtualizerController.configuration).thenReturn(configurationState)
 
-        val viewModel = MainViewModel(
-            equalizerController = equalizerController,
-            bassBoostController = bassBoostController,
-            virtualizerController = virtualizerController,
-            volumeController = volumeController
-        )
-
         viewModel.emitAction(MainAction.SetVirtualizerStrength(strength))
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(strength, viewModel.state.value.virtualizer.strength)
@@ -257,12 +208,6 @@ class MainViewModelTest {
 
         val expectedLevel = 20
 
-        val viewModel = MainViewModel(
-            equalizerController = equalizerController,
-            bassBoostController = bassBoostController,
-            virtualizerController = virtualizerController,
-            volumeController = volumeController
-        )
         testDispatcher.scheduler.runCurrent()
         viewModel.emitAction(MainAction.SetVolumeLevel(expectedLevel))
         testDispatcher.scheduler.advanceUntilIdle()
@@ -275,13 +220,6 @@ class MainViewModelTest {
     fun `should update loudnessEnhancerCheckboxState when SetEnhanceLoudness action is emitted`() {
         val configurationState = MutableStateFlow(EqualizerConfiguration(loudnessEnhancerEnabled = true))
         whenever(equalizerController.configuration).thenReturn(configurationState)
-
-        val viewModel = MainViewModel(
-            equalizerController = equalizerController,
-            bassBoostController = bassBoostController,
-            virtualizerController = virtualizerController,
-            volumeController = volumeController
-        )
 
         viewModel.emitAction(MainAction.SetEqualizerSwitchState(true))
         testDispatcher.scheduler.advanceUntilIdle()
