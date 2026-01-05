@@ -212,7 +212,6 @@ class MainViewModelTest {
         viewModel.emitAction(MainAction.SetVolumeLevel(expectedLevel))
         testDispatcher.scheduler.advanceUntilIdle()
 
-
         assertEquals(expectedLevel, viewModel.state.value.volume.currentLevel)
     }
 
