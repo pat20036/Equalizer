@@ -1,4 +1,4 @@
-package com.pat.equalizer.loudness.core
+package com.pat.equalizer.viewmodel
 
 import com.pat.equalizer.bassboost.core.BassBoostController
 import com.pat.equalizer.bassboost.core.model.BassBoostConfiguration
@@ -6,10 +6,6 @@ import com.pat.equalizer.core.EqualizerConfiguration
 import com.pat.equalizer.core.EqualizerController
 import com.pat.equalizer.core.model.Band
 import com.pat.equalizer.core.model.Preset
-import com.pat.equalizer.viewmodel.EqualizerUiState
-import com.pat.equalizer.viewmodel.MainAction
-import com.pat.equalizer.viewmodel.MainUiState
-import com.pat.equalizer.viewmodel.MainViewModel
 import com.pat.equalizer.virtualizer.core.VirtualizerController
 import com.pat.equalizer.virtualizer.core.model.VirtualizerConfiguration
 import com.pat.equalizer.volume.core.VolumeController
